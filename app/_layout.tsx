@@ -24,14 +24,7 @@ export default function RootLayout() {
         >
           {/* Pas de header */}
           <Stack.Screen name="(tabs)/index" options={{ headerShown: false }} /> 
-          <Stack.Screen name="(tabs)/signalement" options={{ headerShown: false }} />
-          <Stack.Screen name="(tabs)/mes-signalements" options={{ headerShown: false }} />
-          <Stack.Screen name="(tabs)/cellule" options={{ headerShown: false }} />
-          <Stack.Screen name="(tabs)/numeros" options={{ headerShown: false }} />
-          <Stack.Screen name="(tabs)/contact" options={{ headerShown: false }} />
-          <Stack.Screen name="admin/login" options={{ headerShown: false }} />
-          <Stack.Screen name="admin/dashboard" options={{ headerShown: false }} />
-          <Stack.Screen name="chat/[id]" options={{ headerShown: false }} />
+          <Stack.Screen name="(tabs)/login" options={{ headerShown: false }} />
         </Stack>
       </SafeAreaView>
     </SafeAreaProvider>

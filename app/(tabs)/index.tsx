@@ -1,7 +1,7 @@
 import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Dimensions, Image } from 'react-native';
 import { useRouter } from 'expo-router';
-import { ShieldAlert, MessageSquare, Info, Phone, Mail, Lock, Shield } from 'lucide-react-native';
+import { Lock, Shield } from 'lucide-react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 
 const { width } = Dimensions.get('window');
@@ -12,7 +12,7 @@ export default function HomeScreen() {
   const menuButtons = [
     { 
         title: "Espace Intervenants", 
-        route: "/(tabs)/signalement", // TODO route vers login
+        route: "/(tabs)/login", // TODO route vers login
         colors: ["#48a4f4ff", "#10ac56ff","#48a4f4ff"], 
         icon: <Lock color="white" size={32} />, 
         fullWidth: true,
@@ -44,30 +44,24 @@ export default function HomeScreen() {
         {/* Grille de navigation avec Gradients */}
         <View style={styles.grid}>
           {menuButtons.map((btn, index) => (
-            <TouchableOpacity 
-              key={index}
-              style={[
-                btn.fullWidth ? styles.fullWidthContainer : styles.halfWidthContainer,
-                btn.small && styles.smallContainer
-              ]}
-              activeOpacity={0.9}
-              onPress={() => router.push(btn.route as any)}
+          <TouchableOpacity 
+            key={index}
+            style={btn.fullWidth ? styles.fullWidthContainer : styles.halfWidthContainer}
+            activeOpacity={0.9}
+            onPress={() => router.push(btn.route as any)}
+          >
+            <LinearGradient
+              colors={btn.colors as [string, string, ...string[]]}
+              start={{ x: 0, y: 0 }}
+              end={{ x: 1, y: 1 }}
+              style={styles.gradientButton}
             >
-              <LinearGradient
-                colors={btn.colors as [string, string, ...string[]]}
-                start={{ x: 0, y: 0 }}
-                end={{ x: 1, y: 1 }}
-                style={[styles.gradientButton, btn.small && styles.smallGradient]}
-              >
-                <View style={styles.iconContainer}>{btn.icon}</View>
-                <Text style={[
-                    styles.buttonText, 
-                    btn.small && styles.smallButtonText
-                ]}>
-                  {btn.title}
-                </Text>
-              </LinearGradient>
-            </TouchableOpacity>
+              <View style={styles.iconContainer}>{btn.icon}</View>
+              <Text style={styles.buttonText}>
+                {btn.title}
+              </Text>
+            </LinearGradient>
+          </TouchableOpacity>
           ))}
         </View>
 
@@ -158,24 +152,12 @@ const styles = StyleSheet.create({
     width: '48%',
     height: 110,
   },
-  smallContainer: {
-    width: '100%',        // On garde 100% de la largeur parente
-    height: 60,
-    marginTop: 15,
-    alignItems: 'center'
-  },
   gradientButton: {
     flex: 1,
     borderRadius: 20,
     justifyContent: 'center',
     alignItems: 'center',
     padding: 15,
-  },
-  smallGradient: {
-    flexDirection: 'row',
-    justifyContent: 'center',
-    borderWidth: 1,
-    borderColor: '#dee2e6',
   },
   iconContainer: {
     marginBottom: 5,
@@ -188,13 +170,6 @@ const styles = StyleSheet.create({
     textShadowColor: 'rgba(0, 0, 0, 0.1)',
     textShadowOffset: { width: 1, height: 1 },
     textShadowRadius: 2
-  },
-  smallButtonText: {
-    color: '#6c757d',
-    marginLeft: 10,
-    marginBottom: 5,
-    textShadowRadius: 0,
-    fontSize: 15,
   },
   footer: {
     marginTop: 40,

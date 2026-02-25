@@ -11,44 +11,13 @@ export default function HomeScreen() {
 
   const menuButtons = [
     { 
-        title: "Fiche de Signalement", 
-        route: "/(tabs)/signalement", 
+        title: "Espace Intervenants", 
+        route: "/(tabs)/signalement", // TODO route vers login
         colors: ["#48a4f4ff", "#10ac56ff","#48a4f4ff"], 
-        icon: <ShieldAlert color="white" size={32} />, 
+        icon: <Lock color="white" size={32} />, 
         fullWidth: true,
         isPriority: true
-    },
-    { 
-        title: "Mes signalements", 
-        route: "/(tabs)/mes-signalements", 
-        colors: ["#00b4d8", "#76c893"], 
-        icon: <MessageSquare color="white" size={24} /> 
-    },
-    { 
-        title: "La Cellule", 
-        route: "/(tabs)/cellule", 
-        colors: ["#76c893","#00b4d8"], 
-        icon: <Info color="white" size={24} /> 
-    },
-    { 
-        title: "Numéros Utiles", 
-        route: "/(tabs)/numeros", 
-        colors: ["#48cae4", "#99d98c"], 
-        icon: <Phone color="white" size={24} /> 
-    },
-    { 
-        title: "Nous Contacter", 
-        route: "/(tabs)/contact", 
-        colors: ["#99d98c","#48cae4"], 
-        icon: <Mail color="white" size={24} /> 
-    },
-    { 
-        title: "Espace Intervenants", 
-        route: "/admin/login", 
-        colors: ["#f1f5f9", "#e2e8f0"], 
-        icon: <Lock color="#64748b" size={20} />, 
-        small: true 
-    },
+    }
   ];
 
   return (

@@ -19,8 +19,16 @@ export default function LoginScreen() {
   const [password, setPassword] = useState('');
 
   const handleLogin = () => {
-    // TODO: Connecter avec Supabase ici plus tard
-    console.log("Connexion avec :", email, password);
+    // Simulation de connexion : si les champs ne sont pas vides
+    if (email.trim() !== '' && password.trim() !== '') {
+      console.log("Connexion réussie (mode test)");
+      
+      // On utilise replace pour que l'utilisateur ne puisse pas 
+      // revenir au login avec le bouton "Retour" du téléphone
+      router.replace('/(tabs)/dashboard'); 
+    } else {
+      alert("Veuillez remplir les champs (mode test actif)");
+    }
   };
 
   return (
@@ -34,7 +42,7 @@ export default function LoginScreen() {
       <ScrollView contentContainerStyle={styles.container}>
         
         {/* Bouton Retour */}
-        <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
+        <TouchableOpacity style={styles.backButton} onPress={() => router.replace('/')}>
           <ArrowLeft color="#023e8a" size={28} />
         </TouchableOpacity>
 

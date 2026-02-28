@@ -20,15 +20,15 @@ export default function LoginScreen() {
 
   const handleLogin = () => {
     // Simulation de connexion : si les champs ne sont pas vides
-    if (email.trim() !== '' && password.trim() !== '') {
-      console.log("Connexion réussie (mode test)");
+    // if (email.trim() !== '' && password.trim() !== '') {
+    //   console.log("Connexion réussie (mode test)");
       
       // On utilise replace pour que l'utilisateur ne puisse pas 
       // revenir au login avec le bouton "Retour" du téléphone
       router.replace('/(tabs)/dashboard'); 
-    } else {
-      alert("Veuillez remplir les champs (mode test actif)");
-    }
+    // } else {
+    //   alert("Veuillez remplir les champs (mode test actif)");
+    // }
   };
 
   return (

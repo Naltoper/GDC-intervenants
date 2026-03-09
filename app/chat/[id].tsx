@@ -1,17 +1,17 @@
 import { View, Text, StyleSheet, FlatList, TextInput, TouchableOpacity, KeyboardAvoidingView, Platform, StatusBar } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { supabase } from '../../lib/supabase';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Send, ChevronLeft, ShieldCheck, Lock } from 'lucide-react-native';
 
-// IMPORT DE TON NOUVEAU COMPOSANT
-import PreviewRibbon from '../../components/PreviewRibbon'; 
+
 
 export default function ChatScreen() {
   const { id, role } = useLocalSearchParams();
   const router = useRouter();
   const [messages, setMessages] = useState<any[]>([]);
+  const flatListRef = useRef<FlatList>(null);
   const [newMessage, setNewMessage] = useState('');
   const [loading, setLoading] = useState(false);
 
@@ -30,23 +30,43 @@ export default function ChatScreen() {
   useEffect(() => {
     fetchMessages();
 
-    const subscription = supabase
+    const channel = supabase
       .channel(`chat-${id}`)
-      .on('postgres_changes', { 
-        event: 'INSERT', 
-        schema: 'public', 
-        table: 'messages', 
-        filter: `report_id=eq.${id}` 
-      }, 
-      (payload) => {
-        setMessages((current) => [...current, payload.new]);
-      })
-      .subscribe();
+      .on(
+        'postgres_changes',
+        {
+          event: 'INSERT',
+          schema: 'public',
+          table: 'messages',
+          filter: `report_id=eq.${id}`, // Vérifie bien que id est le bon format
+        },
+        (payload) => {
+          console.log("Nouveau message reçu !", payload.new); // Pour debugger
+          // Utilise une fonction de mise à jour pour éviter les problèmes de closure
+          setMessages((prevMessages) => {
+            // Évite les doublons si le message est déjà là
+            if (prevMessages.find(m => m.id === payload.new.id)) return prevMessages;
+            return [...prevMessages, payload.new];
+          });
+        }
+      )
+      .subscribe((status) => {
+          console.log("Statut de la connexion :", status);
+      });
 
     return () => {
-      supabase.removeChannel(subscription);
+      supabase.removeChannel(channel);
     };
   }, [id, fetchMessages]);
+
+  useEffect(() => {
+    if (messages.length > 0) {
+      // On attend un tout petit peu que le rendu soit fini
+      setTimeout(() => {
+        flatListRef.current?.scrollToEnd({ animated: true });
+      }, 100);
+    }
+  }, [messages]);
 
   const sendMessage = async () => {
     if (!newMessage.trim()) return;
@@ -75,7 +95,7 @@ export default function ChatScreen() {
         style={styles.headerGradient}
       >
         <View style={styles.headerContent}>
-          <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
+          <TouchableOpacity onPress={() => router.replace('/(tabs)/dashboard')} style={styles.backButton}>
             <ChevronLeft color="white" size={30} strokeWidth={2.5} />
           </TouchableOpacity>
           
@@ -100,7 +120,9 @@ export default function ChatScreen() {
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}
       >
         <FlatList
+          ref={flatListRef}
           data={messages}
+          onContentSizeChange={() => flatListRef.current?.scrollToEnd({ animated: true })} // Scroll auto quand la taille du contenu change (clavier ou nouveau message)
           keyExtractor={(item) => item.id.toString()}
           contentContainerStyle={styles.listContent}
           renderItem={({ item }) => {
@@ -132,19 +154,31 @@ export default function ChatScreen() {
           }}
         />
 
-        {/* UTILISATION DU COMPOSANT RÉUTILISABLE ICI */}
-        <PreviewRibbon />
 
         <View style={styles.inputWrapper}>
           <View style={styles.inputContainer}>
             <TextInput 
-              style={styles.input} 
+              style={[styles.input, { outlineStyle: 'none' } as any]}
               value={newMessage} 
               onChangeText={setNewMessage} 
-              placeholder="Écris ton message..."
+              placeholder="Ton message..."
               placeholderTextColor="#94a3b8"
-              multiline
+              multiline // Garde le multiline pour les messages longs
+              onKeyPress={(e: any) => {
+                // 1. Vérifie si on est sur le Web
+                const isWeb = Platform.OS === 'web';
+                
+                // 2. Vérifie si c'est un appareil non-tactile (PC avec souris/clavier)
+                // window.matchMedia est le moyen le plus fiable de détecter un "curseur" précis
+                const isDesktop = isWeb && window.matchMedia('(pointer: fine)').matches;
+
+                if (isDesktop && e.nativeEvent.key === 'Enter' && !e.nativeEvent.shiftKey) {
+                  e.preventDefault();
+                  sendMessage();
+                }
+              }}
             />
+
             <TouchableOpacity onPress={sendMessage} disabled={!newMessage.trim() || loading}>
               <LinearGradient
                 colors={newMessage.trim() ? ["#48a4f4", "#10ac56"] : ["#e2e8f0", "#cbd5e1"]}
@@ -190,6 +224,12 @@ const styles = StyleSheet.create({
   timeText: { fontSize: 10, marginTop: 4, color: '#94a3b8', fontWeight: '600' },
   inputWrapper: { paddingHorizontal: 15, paddingVertical: 15, backgroundColor: '#fff', borderTopWidth: 1, borderTopColor: '#f1f5f9' },
   inputContainer: { flexDirection: 'row', alignItems: 'center', backgroundColor: '#f1f5f9', borderRadius: 25, padding: 5 },
-  input: { flex: 1, paddingHorizontal: 15, fontSize: 15, color: '#1e293b', maxHeight: 100 },
+  input: { 
+    flex: 1, 
+    paddingHorizontal: 15, 
+    fontSize: 15, 
+    color: '#1e293b', 
+    maxHeight: 100,
+  },
   sendBtn: { width: 42, height: 42, borderRadius: 21, justifyContent: 'center', alignItems: 'center' },
 });

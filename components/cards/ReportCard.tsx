@@ -55,6 +55,7 @@ export const ReportCard = ({ item, onDetails, onStatus, onChat }: ReportCardProp
           colors={["#48a4f4", "#00b4d8"]}
           onPress={onChat}
           width="100%"
+          height={80}
         />
       </View>
 

@@ -1,4 +1,4 @@
-import { GradientButton } from "@/components/buttons/GradientButton";
+import { GradientButton } from "../../components/buttons/GradientButton";
 import { Stack, useRouter } from "expo-router";
 import { ArrowLeft, Lock, Mail, ShieldCheck } from "lucide-react-native";
 import React, { useState } from "react";
@@ -95,6 +95,7 @@ export default function LoginScreen() {
               colors={["#48a4f4", "#10ac56"]}
               onPress={handleLogin}
               width="100%"
+              height={80}
             />
           </View>
         </View>

@@ -1,39 +1,11 @@
-import { GradientButton } from "@/components/buttons/GradientButton";
-import * as Device from "expo-device";
-import * as Notifications from "expo-notifications";
+import { GradientButton } from "../../components/buttons/GradientButton";
+import { ReportDetailModal } from "../../components/modals/ReportDetailModal";
 import { useRouter } from "expo-router";
-import {
-  ChevronLeft,
-  Info,
-  MessageCircle,
-  Shield,
-  User,
-  X
-} from "lucide-react-native";
+import {ChevronLeft,Info,MessageCircle,Shield,User} from "lucide-react-native";
 import { useEffect, useState } from "react";
-import {
-  ActivityIndicator,
-  FlatList,
-  Modal,
-  RefreshControl,
-  ScrollView,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View
-} from "react-native";
+import {ActivityIndicator,FlatList,Modal,RefreshControl,
+  ScrollView,StyleSheet,Text,TouchableOpacity,View} from "react-native";
 import { supabase } from "../../lib/supabase";
-
-// -- CONFIGURATION NOTIFICATIONS --
-Notifications.setNotificationHandler({
-  handleNotification: async () => ({
-    shouldShowAlert: true,
-    shouldPlaySound: true,
-    shouldSetBadge: false,
-    shouldShowBanner: true,
-    shouldShowList: true,
-  }),
-});
 
 // -- CONSTANTES DE STATUT --
 const STATUS_COLORS: any = {
@@ -57,12 +29,6 @@ export default function DashboardScreen() {
 
   useEffect(() => {
     fetchReports();
-    registerForPushNotificationsAsync();
-
-    const sub = Notifications.addNotificationResponseReceivedListener(() =>
-      router.replace("/dashboard"),
-    );
-    return () => sub.remove();
   }, []);
 
   const fetchReports = async () => {
@@ -161,7 +127,7 @@ export default function DashboardScreen() {
         onCancel={() => setIsStatusModalVisible(false)}
       />
 
-      <DetailsModal
+      <ReportDetailModal
         visible={isDetailsModalVisible}
         report={selectedReport}
         onClose={() => setIsDetailsModalVisible(false)}
@@ -300,31 +266,6 @@ const StatusModal = ({
   </Modal>
 );
 
-const DetailsModal = ({ visible, report, onClose }: any) => (
-  <Modal visible={visible} transparent animationType="slide">
-    <View style={styles.modalOverlay}>
-      <View style={styles.detailsContent}>
-        <View style={styles.detailsHeader}>
-          <Text style={styles.modalTitle}>Détails du signalement</Text>
-          <TouchableOpacity onPress={onClose}>
-            <X size={24} color="#64748b" />
-          </TouchableOpacity>
-        </View>
-        {report && (
-          <ScrollView>
-            <Text style={styles.detailLabel}>Contenu :</Text>
-            <Text style={styles.descriptionText}>{report.content}</Text>
-            <Text style={[styles.detailLabel, { marginTop: 15 }]}>Lieu :</Text>
-            <Text style={styles.detailValue}>
-              {report.lieu || "Non précisé"}
-            </Text>
-          </ScrollView>
-        )}
-      </View>
-    </View>
-  </Modal>
-);
-
 // --- STYLES (Conservés et nettoyés) ---
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: "#f8fafc" },
@@ -447,23 +388,3 @@ const styles = StyleSheet.create({
   descriptionText: { fontSize: 15, lineHeight: 22, color: "#334155" },
   infoIconButton: { padding: 5 },
 });
-
-async function registerForPushNotificationsAsync() {
-  if (!Device.isDevice) return;
-  const { status: existingStatus } = await Notifications.getPermissionsAsync();
-  let finalStatus = existingStatus;
-  if (existingStatus !== "granted") {
-    finalStatus = (await Notifications.requestPermissionsAsync()).status;
-  }
-  if (finalStatus !== "granted") return;
-  const token = (
-    await Notifications.getExpoPushTokenAsync({
-      projectId: "69174575-39f2-4d8e-9440-d9a3e148ec88",
-    })
-  ).data;
-  if (token) {
-    await supabase
-      .from("intervenant_tokens")
-      .upsert({ expo_push_token: token }, { onConflict: "expo_push_token" });
-  }
-}

@@ -6,8 +6,8 @@
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
     "notification": {
-      "icon": "./assets/images/favicon.png", // <--- Ton icône blanche ici
-      "color": "#023e8a" // <--- La couleur du petit rond sous l'icône (ta charte)
+      "icon": "./assets/images/favicon.png",
+      "color": "#023e8a"
     },
     "scheme": "gdcintervenants",
     "userInterfaceStyle": "automatic",
@@ -25,7 +25,9 @@
         "monochromeImage": "./assets/images/android-icon-monochrome.png"
       },
       "package": "com.roblof.gdcintervenants",
-      "permissions": ["NOTIFICATIONS"], 
+      "permissions": [
+        "NOTIFICATIONS"
+      ],
       "softwareKeyboardLayoutMode": "resize",
       "edgeToEdgeEnabled": true,
       "predictiveBackGestureEnabled": false
@@ -61,7 +63,8 @@
             "backgroundColor": "#000000"
           }
         }
-      ]
+      ],
+      "expo-web-browser"
     ],
     "experiments": {
       "typedRoutes": true,

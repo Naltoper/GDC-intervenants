@@ -4,13 +4,14 @@ import { useRouter } from 'expo-router';
 import { Lock, Shield } from 'lucide-react-native';
 import { GradientButton } from '../../components/buttons/GradientButton';
 import { InstallBanner } from '../../components/banners/InstallBanner';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 
 export default function HomeScreen() {
   const router = useRouter();
 
   return (
-    <View style={styles.safeArea}>
+    <SafeAreaView style={styles.safeArea}>
       <ScrollView contentContainerStyle={styles.container} showsVerticalScrollIndicator={false}>
         
         {/* --- AJOUT DE LA BANNIÈRE ICI --- */}
@@ -58,7 +59,7 @@ export default function HomeScreen() {
         </View>
 
       </ScrollView>
-    </View>
+    </SafeAreaView>
   );
 }
 

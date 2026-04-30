@@ -1,18 +1,14 @@
-import { GradientButton } from "../../components/buttons/GradientButton";
-import { ReportDetailModal } from "../../components/modals/ReportDetailModal";
 import { useRouter } from "expo-router";
 import {ChevronLeft,Info,MessageCircle,Shield,User} from "lucide-react-native";
 import { useEffect, useState } from "react";
-import {ActivityIndicator,FlatList,Modal,RefreshControl,
+import {ActivityIndicator,FlatList,RefreshControl,
   ScrollView,StyleSheet,Text,TouchableOpacity,View} from "react-native";
 import { supabase } from "../../lib/supabase";
 
-// -- CONSTANTES DE STATUT --
-const STATUS_COLORS: any = {
-  "En cours": { bg: "#fff7ed", dot: "#f97316", text: "#ea7f0c" },
-  Résolu: { bg: "#f0fdf4", dot: "#22c55e", text: "#16a34a" },
-  "Non traité": { bg: "#eff6ff", dot: "#d53f3f", text: "#eb2525" },
-};
+import { ReportDetailModal } from "../../components/modals/ReportDetailModal";
+import { StatusModal } from "../../components/modals/StatusModal";
+import { ReportCard } from "../../components/cards/ReportCard";
+
 
 export default function DashboardScreen() {
   const router = useRouter();
@@ -168,104 +164,6 @@ const FilterBar = ({ currentFilter, onSelectFilter }: any) => (
   </View>
 );
 
-const ReportCard = ({ item, onDetails, onStatus, onChat }: any) => {
-  const colors = STATUS_COLORS[item.status] || STATUS_COLORS["Non traité"];
-  return (
-    <View style={styles.card}>
-      <View style={styles.cardHeader}>
-        <View style={styles.authorContainer}>
-          {item.is_anonyme ? (
-            <Shield size={16} color="#64748b" />
-          ) : (
-            <User size={16} color="#023e8a" />
-          )}
-          <Text
-            style={[
-              styles.typeText,
-              { color: item.is_anonyme ? "#64748b" : "#023e8a" },
-            ]}
-          >
-            {item.is_anonyme ? " Anonyme" : ` ${item.author_name}`}
-          </Text>
-        </View>
-        <TouchableOpacity onPress={onDetails} style={styles.infoIconButton}>
-          <Info size={22} color="#00b4d8" />
-        </TouchableOpacity>
-      </View>
-
-      <Text style={styles.reportText} numberOfLines={3}>
-        {item.content}
-      </Text>
-
-      <View style={styles.buttonWrapper}>
-        <GradientButton
-          title="Répondre"
-          icon={<MessageCircle size={18} color="white" />}
-          colors={["#48a4f4", "#00b4d8"]}
-          onPress={onChat}
-          width="100%"
-        />
-      </View>
-
-      <View style={styles.footer}>
-        <TouchableOpacity
-          style={[styles.badge, { backgroundColor: colors.bg }]}
-          onPress={onStatus}
-        >
-          <View style={[styles.dot, { backgroundColor: colors.dot }]} />
-          <Text style={[styles.badgeText, { color: colors.text }]}>
-            {item.status}
-          </Text>
-        </TouchableOpacity>
-        <Text style={styles.dateText}>
-          {new Date(item.created_at).toLocaleDateString()}
-        </Text>
-      </View>
-    </View>
-  );
-};
-
-const StatusModal = ({
-  visible,
-  currentStatus,
-  onSelect,
-  onConfirm,
-  onCancel,
-}: any) => (
-  <Modal visible={visible} transparent animationType="fade">
-    <View style={styles.modalOverlay}>
-      <View style={styles.modalContent}>
-        <Text style={styles.modalTitle}>Changer le statut</Text>
-        {["Non traité", "En cours", "Résolu"].map((s) => (
-          <TouchableOpacity
-            key={s}
-            style={[
-              styles.statusOption,
-              currentStatus === s && styles.statusOptionSelected,
-            ]}
-            onPress={() => onSelect(s)}
-          >
-            <Text
-              style={{
-                color: currentStatus === s ? "#00b4d8" : "#64748b",
-                fontWeight: "600",
-              }}
-            >
-              {s}
-            </Text>
-          </TouchableOpacity>
-        ))}
-        <TouchableOpacity style={styles.confirmBtn} onPress={onConfirm}>
-          <Text style={styles.confirmBtnText}>Enregistrer</Text>
-        </TouchableOpacity>
-        <TouchableOpacity onPress={onCancel}>
-          <Text style={styles.cancelText}>Fermer</Text>
-        </TouchableOpacity>
-      </View>
-    </View>
-  </Modal>
-);
-
 // --- STYLES (Conservés et nettoyés) ---
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: "#f8fafc" },
@@ -294,97 +192,4 @@ const styles = StyleSheet.create({
   filterBadgeActive: { backgroundColor: "#023e8a" },
   filterText: { fontWeight: "700", color: "#64748b" },
   filterTextActive: { color: "#fff" },
-  card: {
-    backgroundColor: "#fff",
-    padding: 20,
-    borderRadius: 20,
-    marginBottom: 15,
-    elevation: 2,
-  },
-  cardHeader: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    marginBottom: 10,
-  },
-  authorContainer: { flexDirection: "row", alignItems: "center" },
-  typeText: { fontWeight: "700" },
-  reportText: { color: "#334155", marginBottom: 15 },
-  buttonWrapper: { marginBottom: 15 },
-  footer: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    borderTopWidth: 1,
-    borderTopColor: "#f1f5f9",
-    paddingTop: 10,
-  },
-  badge: {
-    flexDirection: "row",
-    alignItems: "center",
-    paddingHorizontal: 10,
-    paddingVertical: 5,
-    borderRadius: 15,
-  },
-  dot: { width: 6, height: 6, borderRadius: 3, marginRight: 5 },
-  badgeText: { fontSize: 10, fontWeight: "800" },
-  dateText: { fontSize: 10, color: "#94a3b8" },
-  modalOverlay: {
-    flex: 1,
-    backgroundColor: "rgba(0,0,0,0.5)",
-    justifyContent: "flex-end",
-  },
-  modalContent: {
-    backgroundColor: "#fff",
-    borderTopLeftRadius: 30,
-    borderTopRightRadius: 30,
-    padding: 25,
-    alignItems: "center",
-  },
-  modalTitle: {
-    fontSize: 18,
-    fontWeight: "800",
-    color: "#023e8a",
-    marginBottom: 20,
-  },
-  statusOption: {
-    width: "100%",
-    padding: 15,
-    borderRadius: 10,
-    borderWidth: 1,
-    borderColor: "#f1f5f9",
-    marginBottom: 10,
-    alignItems: "center",
-  },
-  statusOptionSelected: { borderColor: "#00b4d8", backgroundColor: "#f0f9ff" },
-  confirmBtn: {
-    backgroundColor: "#023e8a",
-    width: "100%",
-    padding: 15,
-    borderRadius: 10,
-    alignItems: "center",
-    marginTop: 10,
-    marginBottom: 15,
-  },
-  confirmBtnText: { color: "#fff", fontWeight: "700" },
-  cancelText: { color: "#94a3b8" },
-  detailsContent: {
-    backgroundColor: "#fff",
-    height: "80%",
-    borderTopLeftRadius: 30,
-    borderTopRightRadius: 30,
-    padding: 25,
-  },
-  detailsHeader: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    marginBottom: 20,
-  },
-  detailLabel: {
-    fontSize: 12,
-    fontWeight: "700",
-    color: "#94a3b8",
-    textTransform: "uppercase",
-  },
-  detailValue: { fontSize: 16, fontWeight: "600" },
-  descriptionText: { fontSize: 15, lineHeight: 22, color: "#334155" },
-  infoIconButton: { padding: 5 },
 });

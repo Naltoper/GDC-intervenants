@@ -1,20 +1,25 @@
 import { useRouter } from "expo-router";
-import {ChevronLeft,Info,MessageCircle,Shield,User} from "lucide-react-native";
-import { useEffect, useState } from "react";
+import {ChevronLeft} from "lucide-react-native";
+import { useState } from "react";
 import {ActivityIndicator,FlatList,RefreshControl,
-  ScrollView,StyleSheet,Text,TouchableOpacity,View} from "react-native";
-import { supabase } from "../../lib/supabase";
+  StyleSheet,Text,TouchableOpacity,View} from "react-native";
 
 import { ReportDetailModal } from "../../components/modals/ReportDetailModal";
 import { StatusModal } from "../../components/modals/StatusModal";
 import { ReportCard } from "../../components/cards/ReportCard";
-
+import { FilterBar } from "../../components/navigation/FilterBar";
+import { useGetAllReports } from "../../hooks/useGetAllReports";
 
 export default function DashboardScreen() {
   const router = useRouter();
-  const [reports, setReports] = useState<any[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [refreshing, setRefreshing] = useState(false);
+  const { 
+    reports, 
+    loading, 
+    refreshing, 
+    fetchReports, 
+    updateReportStatus,  
+  } = useGetAllReports();
+
   const [filter, setFilter] = useState("Tous");
 
   // Modales
@@ -23,38 +28,15 @@ export default function DashboardScreen() {
   const [isDetailsModalVisible, setIsDetailsModalVisible] = useState(false);
   const [tempStatus, setTempStatus] = useState("");
 
-  useEffect(() => {
-    fetchReports();
-  }, []);
-
-  const fetchReports = async () => {
-    setLoading(true);
-    const { data, error } = await supabase
-      .from("reports")
-      .select("*")
-      .order("created_at", { ascending: false });
-    if (!error) setReports(data || []);
-    setLoading(false);
-  };
-
   const onUpdateStatus = async () => {
     if (!selectedReport) return;
-    const { error } = await supabase
-      .from("reports")
-      .update({ status: tempStatus })
-      .eq("id", selectedReport.id);
-    if (!error) {
-      setReports(
-        reports.map((r) =>
-          r.id === selectedReport.id ? { ...r, status: tempStatus } : r,
-        ),
-      );
-      setIsStatusModalVisible(false);
-    }
+    const success = await updateReportStatus(selectedReport.id, tempStatus);
+    if (success) setIsStatusModalVisible(false);
   };
 
-  const filteredReports =
-    filter === "Tous" ? reports : reports.filter((r) => r.status === filter);
+  const filteredReports = filter === "Tous" 
+    ? reports 
+    : reports.filter((r) => r.status === filter);
 
   return (
     <View style={styles.container}>
@@ -74,7 +56,7 @@ export default function DashboardScreen() {
         </View>
       </View>
 
-      {/* FILTRES SCROLLABLES */}
+      {/* FILTRES SCROLLABLES vers la droite*/}
       <FilterBar currentFilter={filter} onSelectFilter={setFilter} />
 
       {loading && !refreshing ? (
@@ -132,38 +114,6 @@ export default function DashboardScreen() {
   );
 }
 
-// --- SOUS-COMPOSANTS DE REFACTORING ---
-
-const FilterBar = ({ currentFilter, onSelectFilter }: any) => (
-  <View style={styles.filterBar}>
-    <ScrollView
-      horizontal
-      showsHorizontalScrollIndicator={false}
-      contentContainerStyle={styles.filterScroll}
-    >
-      {["Tous", "Non traité", "En cours", "Résolu"].map((f) => (
-        <TouchableOpacity
-          key={f}
-          onPress={() => onSelectFilter(f)}
-          style={[
-            styles.filterBadge,
-            currentFilter === f && styles.filterBadgeActive,
-          ]}
-        >
-          <Text
-            style={[
-              styles.filterText,
-              currentFilter === f && styles.filterTextActive,
-            ]}
-          >
-            {f}
-          </Text>
-        </TouchableOpacity>
-      ))}
-    </ScrollView>
-  </View>
-);
-
 // --- STYLES (Conservés et nettoyés) ---
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: "#f8fafc" },
@@ -181,15 +131,4 @@ const styles = StyleSheet.create({
   titleWrapper: { alignItems: "center" },
   title: { fontSize: 22, fontWeight: "800", color: "#023e8a" },
   subtitle: { fontSize: 12, color: "#64748b" },
-  filterBar: { backgroundColor: "#fff", paddingVertical: 10 },
-  filterScroll: { paddingHorizontal: 20, gap: 10 },
-  filterBadge: {
-    paddingHorizontal: 15,
-    paddingVertical: 8,
-    borderRadius: 20,
-    backgroundColor: "#f1f5f9",
-  },
-  filterBadgeActive: { backgroundColor: "#023e8a" },
-  filterText: { fontWeight: "700", color: "#64748b" },
-  filterTextActive: { color: "#fff" },
 });

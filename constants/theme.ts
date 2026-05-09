@@ -16,6 +16,20 @@ export const Colors = {
     icon: '#687076',
     tabIconDefault: '#687076',
     tabIconSelected: tintColorLight,
+    //palette "calanques"
+    primary: '#023E8A',
+    secondary:'#00B4D8',
+    surface:'#fff',
+    border: '#E2E8F0',
+    textMuted:'#64748B',
+    status:{
+      error:'#EF4444',
+      errorBg:'#FEE2E2',
+      warning:'#F97316',
+      warningBg:'#FFF7ED',
+      success:'#10AC56',
+      successBg:'#F0FDF4'
+    }
   },
   dark: {
     text: '#ECEDEE',
@@ -24,6 +38,20 @@ export const Colors = {
     icon: '#9BA1A6',
     tabIconDefault: '#9BA1A6',
     tabIconSelected: tintColorDark,
+    //palette "calanque" mode sombre
+    primary: '#48A4F4',
+    secondary:'#00B4D8',
+    surface:'#151718',
+    border: '#334155',
+    textMuted:'#94A3B8',
+    status:{
+      error:'#F87171',
+      errorBg:'#7F1D1D',
+      warning:'#FB923C',
+      warningBg:'#7C2D12',
+      success:'#4ADE80',
+      successBg:'#14532D'
+    }
   },
 };
 

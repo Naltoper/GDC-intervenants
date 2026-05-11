@@ -16,7 +16,7 @@ export const Colors = {
     icon: '#687076',
     tabIconDefault: '#687076',
     tabIconSelected: tintColorLight,
-    primaryLight : '48A4F4',
+    primaryLight : '#48A4F4',
     //palette "calanques"
     primary: '#023E8A',
     secondary:'#00B4D8',

@@ -1,21 +1,22 @@
-import React from 'react';
-import { 
-  TouchableOpacity, 
-  Text, 
-  StyleSheet, 
-  View, 
-  DimensionValue, 
-  StyleProp, 
-  ViewStyle 
-} from 'react-native';
-import { LinearGradient } from 'expo-linear-gradient';
+import { Colors } from "@/constants/theme"; //import des couleurs
+import { LinearGradient } from "expo-linear-gradient";
+import React from "react";
+import {
+  DimensionValue,
+  StyleProp,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+  ViewStyle,
+} from "react-native";
 
 // Définition des types pour TypeScript
 interface GradientButtonProps {
   title: string;
   icon?: React.ReactNode;
   onPress: () => void;
-  colors: [string, string, ...string[]];
+  colors?: readonly [string, string, ...string[]];
   width?: DimensionValue;
   height?: DimensionValue;
   style?: StyleProp<ViewStyle>;
@@ -25,14 +26,14 @@ export const GradientButton = ({
   title,
   icon,
   onPress,
-  colors,
-  width = '100%', // Valeur par défaut
-  height = 110,   // Valeur par défaut correspondant à tes boutons actuels
+  colors = [Colors.light.secondary, Colors.light.primary],
+  width = "100%", // Valeur par défaut
+  height = 110, // Valeur par défaut correspondant à tes boutons actuels
   style,
 }: GradientButtonProps) => {
   return (
-    <TouchableOpacity 
-      onPress={onPress} 
+    <TouchableOpacity
+      onPress={onPress}
       activeOpacity={0.85}
       style={[{ width, height }, style]}
     >
@@ -53,8 +54,8 @@ const styles = StyleSheet.create({
   gradient: {
     flex: 1,
     borderRadius: 20,
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: "center",
+    alignItems: "center",
     padding: 15,
     // Ombre légère pour le relief
     shadowColor: "#000",
@@ -67,11 +68,11 @@ const styles = StyleSheet.create({
     marginBottom: 8,
   },
   buttonText: {
-    color: '#fff',
+    color: Colors.light.surface,
     fontSize: 16,
-    fontWeight: '700',
-    textAlign: 'center',
-    textShadowColor: 'rgba(0, 0, 0, 0.1)',
+    fontWeight: "700",
+    textAlign: "center",
+    textShadowColor: "rgba(0, 0, 0, 0.1)",
     textShadowOffset: { width: 1, height: 1 },
     textShadowRadius: 2,
   },

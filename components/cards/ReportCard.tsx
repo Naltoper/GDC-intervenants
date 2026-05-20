@@ -1,46 +1,81 @@
-import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
-import { Shield, User, Info, MessageCircle } from 'lucide-react-native';
-import { GradientButton } from '../buttons/GradientButton';
-import { Report } from '../../types/report';
+import { Info, MessageCircle, Shield, User } from "lucide-react-native";
+import React from "react";
+import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import Animated, { FadeInDown } from "react-native-reanimated";
+import { Colors } from "../../constants/theme";
+import { Report } from "../../types/report";
+import { GradientButton } from "../buttons/GradientButton";
 
-// On déplace les constantes de couleurs ici car elles sont liées au design de la carte
-export const STATUS_COLORS: Record<string, { bg: string; dot: string; text: string }> = {
-  "En cours": { bg: "#fff7ed", dot: "#f97316", text: "#ea7f0c" },
-  "Résolu": { bg: "#f0fdf4", dot: "#22c55e", text: "#16a34a" },
-  "Non traité": { bg: "#eff6ff", dot: "#d53f3f", text: "#eb2525" },
+export const STATUS_COLORS: Record<
+  string,
+  { bg: string; dot: string; text: string }
+> = {
+  "En cours": {
+    bg: Colors.light.status.warningBg,
+    dot: Colors.light.status.warning,
+    text: Colors.light.status.warningText,
+  },
+  Résolu: {
+    bg: Colors.light.status.successBg,
+    dot: Colors.light.status.success,
+    text: Colors.light.status.successText,
+  },
+  "Non traité": {
+    bg: Colors.light.status.errorBg,
+    dot: Colors.light.status.error,
+    text: Colors.light.status.errorText,
+  },
 };
 
 interface ReportCardProps {
   item: Report;
+  index?: number; // <-- Ajout pour décaler l'animation selon la position
   onDetails: () => void;
   onStatus: () => void;
   onChat: () => void;
 }
 
-export const ReportCard = ({ item, onDetails, onStatus, onChat }: ReportCardProps) => {
-  const colors = STATUS_COLORS[item.status || ""] || STATUS_COLORS["Non traité"];
+export const ReportCard = ({
+  item,
+  index = 0,
+  onDetails,
+  onStatus,
+  onChat,
+}: ReportCardProps) => {
+  const colors =
+    STATUS_COLORS[item.status || ""] || STATUS_COLORS["Non traité"];
 
   return (
-    <View style={styles.card}>
+    // L'animation magique est ici : FadeInDown décale l'apparition de chaque carte de 100ms
+    <Animated.View
+      entering={FadeInDown.delay(index * 100)
+        .springify()
+        .damping(30)
+        .mass(1.5)}
+      style={styles.card}
+    >
       <View style={styles.cardHeader}>
         <View style={styles.authorContainer}>
           {item.is_anonyme ? (
-            <Shield size={16} color="#64748b" />
+            <Shield size={16} color={Colors.light.textMuted} />
           ) : (
-            <User size={16} color="#023e8a" />
+            <User size={16} color={Colors.light.primary} />
           )}
           <Text
             style={[
               styles.typeText,
-              { color: item.is_anonyme ? "#64748b" : "#023e8a" },
+              {
+                color: item.is_anonyme
+                  ? Colors.light.textMuted
+                  : Colors.light.primary,
+              },
             ]}
           >
             {item.is_anonyme ? " Anonyme" : ` ${item.author_name}`}
           </Text>
         </View>
         <TouchableOpacity onPress={onDetails} style={styles.infoIconButton}>
-          <Info size={22} color="#00b4d8" />
+          <Info size={22} color={Colors.light.secondary} />
         </TouchableOpacity>
       </View>
 
@@ -52,7 +87,7 @@ export const ReportCard = ({ item, onDetails, onStatus, onChat }: ReportCardProp
         <GradientButton
           title="Répondre"
           icon={<MessageCircle size={18} color="white" />}
-          colors={["#48a4f4", "#00b4d8"]}
+          colors={[Colors.light.primaryLight, Colors.light.secondary]}
           onPress={onChat}
           width="100%"
           height={80}
@@ -70,16 +105,18 @@ export const ReportCard = ({ item, onDetails, onStatus, onChat }: ReportCardProp
           </Text>
         </TouchableOpacity>
         <Text style={styles.dateText}>
-          {item.created_at ? new Date(item.created_at).toLocaleDateString() : ""}
+          {item.created_at
+            ? new Date(item.created_at).toLocaleDateString()
+            : ""}
         </Text>
       </View>
-    </View>
+    </Animated.View>
   );
 };
 
 const styles = StyleSheet.create({
   card: {
-    backgroundColor: "#fff",
+    backgroundColor: Colors.light.surface,
     padding: 20,
     borderRadius: 20,
     marginBottom: 15,
@@ -96,14 +133,14 @@ const styles = StyleSheet.create({
   },
   authorContainer: { flexDirection: "row", alignItems: "center" },
   typeText: { fontWeight: "700" },
-  reportText: { color: "#334155", marginBottom: 15, lineHeight: 20 },
+  reportText: { color: Colors.light.text, marginBottom: 15, lineHeight: 20 },
   buttonWrapper: { marginBottom: 15 },
   footer: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
     borderTopWidth: 1,
-    borderTopColor: "#f1f5f9",
+    borderTopColor: Colors.light.borderSubtle,
     paddingTop: 10,
   },
   badge: {
@@ -115,6 +152,6 @@ const styles = StyleSheet.create({
   },
   dot: { width: 6, height: 6, borderRadius: 3, marginRight: 5 },
   badgeText: { fontSize: 10, fontWeight: "800" },
-  dateText: { fontSize: 10, color: "#94a3b8" },
+  dateText: { fontSize: 10, color: Colors.light.textMuted },
   infoIconButton: { padding: 5 },
 });

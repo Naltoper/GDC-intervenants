@@ -1,12 +1,22 @@
-import React from 'react';
-import { View, ScrollView, TouchableOpacity, Text, StyleSheet } from 'react-native';
+import React from "react";
+import {
+  ScrollView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from "react-native";
+import { Colors } from "../../constants/theme";
 
 interface FilterBarProps {
   currentFilter: string;
   onSelectFilter: (filter: string) => void;
 }
 
-export const FilterBar = ({ currentFilter, onSelectFilter }: FilterBarProps) => {
+export const FilterBar = ({
+  currentFilter,
+  onSelectFilter,
+}: FilterBarProps) => {
   const filters = ["Tous", "Non traité", "En cours", "Résolu"];
 
   return (
@@ -41,28 +51,28 @@ export const FilterBar = ({ currentFilter, onSelectFilter }: FilterBarProps) => 
 };
 
 const styles = StyleSheet.create({
-  filterBar: { 
-    backgroundColor: "#fff", 
-    paddingVertical: 10 
+  filterBar: {
+    backgroundColor: Colors.light.background,
+    paddingVertical: 10,
   },
-  filterScroll: { 
-    paddingHorizontal: 20, 
-    gap: 10 
+  filterScroll: {
+    paddingHorizontal: 20,
+    gap: 10,
   },
   filterBadge: {
     paddingHorizontal: 15,
     paddingVertical: 8,
     borderRadius: 20,
-    backgroundColor: "#f1f5f9",
+    backgroundColor: Colors.light.borderSubtle,
   },
-  filterBadgeActive: { 
-    backgroundColor: "#023e8a" 
+  filterBadgeActive: {
+    backgroundColor: Colors.light.primary,
   },
-  filterText: { 
-    fontWeight: "700", 
-    color: "#64748b" 
+  filterText: {
+    fontWeight: "700",
+    color: Colors.light.textMuted,
   },
-  filterTextActive: { 
-    color: "#fff" 
+  filterTextActive: {
+    color: Colors.light.surface,
   },
 });

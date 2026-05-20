@@ -96,7 +96,11 @@ export default function DashboardScreen() {
   return (
     <View style={styles.container}>
       <Animated.View style={[styles.headerContainer, headerAnimatedStyle]}>
-        <BlurView intensity={80} tint="light" style={StyleSheet.absoluteFill} />
+        {Platform.OS === 'android' ? (
+          <View style={[StyleSheet.absoluteFill, { backgroundColor: '#ffffff09' }]} />
+        ) : (
+          <BlurView intensity={80} tint="light" style={StyleSheet.absoluteFill} />
+        )}
         <View style={styles.headerContent}>
           <TouchableOpacity
             onPress={() => router.replace("/(tabs)")}
@@ -198,16 +202,26 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.light.background, // Utilisation du thème
   },
   headerContainer: {
-    position: "absolute",
-    top: 0,
-    left: 0,
-    right: 0,
-    zIndex: 10,
-    // On utilise Colors.light.surface avec une opacité pour le header
-    backgroundColor: "rgba(255, 255, 255, 0.6)",
-    borderBottomWidth: 1,
-    borderBottomColor: Colors.light.borderSubtle, // Utilisation de la nouvelle variable
-    overflow: "hidden",
+  position: "absolute",
+  top: 0,
+  left: 0,
+  right: 0,
+  zIndex: 10,
+  // Blanc opaque sur Android, semi-transparent pour laisser le flou agir sur iOS et Web
+  backgroundColor: Platform.OS === 'android' ? "#fffffff6" : "rgba(255, 255, 255, 0.6)",
+  borderBottomWidth: 1,
+  borderBottomColor: Colors.light.borderSubtle,
+  overflow: "hidden",
+  // Élévation pour Android uniquement
+  ...Platform.select({
+    android: {
+      elevation: 4,
+      shadowColor: '#000',
+      shadowOffset: { width: 0, height: 4 },
+      shadowOpacity: 1,
+      shadowRadius: 8,
+    }
+  }),
   },
   headerContent: { flex: 1, justifyContent: "flex-end", paddingBottom: 15 },
   backButton: {

@@ -1,4 +1,4 @@
-import { Info, MessageCircle, Shield, User } from "lucide-react-native";
+import { Info, MessageCircle, Shield, User, FileText } from "lucide-react-native";
 import React from "react";
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import Animated, { FadeInDown } from "react-native-reanimated";
@@ -74,9 +74,17 @@ export const ReportCard = ({
             {item.is_anonyme ? " Anonyme" : ` ${item.author_name}`}
           </Text>
         </View>
-        <TouchableOpacity onPress={onDetails} style={styles.infoIconButton}>
-          <Info size={22} color={Colors.light.secondary} />
-        </TouchableOpacity>
+        {/* Nouveau bouton de détails avec l'icône de document ET le texte */}
+        <TouchableOpacity
+          onPress={(event) => {
+            event.stopPropagation();
+            onDetails();
+          }}
+          style={styles.documentIconButton} // On garde ce nom de style
+        >
+          <FileText size={16} color="#023e8a" style={{ marginRight: 6 }} />
+          <Text style={styles.documentButtonText}>Détails</Text>
+        </TouchableOpacity> 
       </View>
 
       <Text style={styles.reportText} numberOfLines={3}>
@@ -154,4 +162,17 @@ const styles = StyleSheet.create({
   badgeText: { fontSize: 10, fontWeight: "800" },
   dateText: { fontSize: 10, color: Colors.light.textMuted },
   infoIconButton: { padding: 5 },
+  documentIconButton: {
+    flexDirection: 'row', // Force l'icône et le texte à être côte à côte
+    alignItems: 'center', // Centre verticalement l'icône et le texte
+    backgroundColor: '#e0f2fe',
+    paddingHorizontal: 10,
+    paddingVertical: 6,
+    borderRadius: 12,
+  },
+  documentButtonText: {
+    fontSize: 12,
+    color: '#023e8a',
+    fontWeight: '700',
+  },
 });

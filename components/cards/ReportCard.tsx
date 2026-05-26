@@ -1,4 +1,4 @@
-import { Info, MessageCircle, Shield, User, FileText } from "lucide-react-native";
+import { Info, MessageCircle, Shield, User, FileText, SquarePen } from "lucide-react-native";
 import React from "react";
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import Animated, { FadeInDown } from "react-native-reanimated";
@@ -104,14 +104,17 @@ export const ReportCard = ({
 
       <View style={styles.footer}>
         <TouchableOpacity
-          style={[styles.badge, { backgroundColor: colors.bg }]}
+          style={[styles.badge, { backgroundColor: colors.bg, borderColor: colors.text }]} // <-- Ajout de borderColor ici
           onPress={onStatus}
         >
           <View style={[styles.dot, { backgroundColor: colors.dot }]} />
           <Text style={[styles.badgeText, { color: colors.text }]}>
             {item.status}
           </Text>
+          {/* L'icône de modification ajoutée ICI */}
+          <SquarePen size={12} color={colors.text} style={{ marginLeft: 6 }} />
         </TouchableOpacity>
+        
         <Text style={styles.dateText}>
           {item.created_at
             ? new Date(item.created_at).toLocaleDateString()
@@ -156,19 +159,36 @@ const styles = StyleSheet.create({
     alignItems: "center",
     paddingHorizontal: 10,
     paddingVertical: 5,
-    borderRadius: 15,
+    borderRadius: 12, // Légèrement plus moderne
+
+    // 🟢 AJOUTS : Bordure fine + Ombre légère (iOS & Android)
+    borderWidth: 1, // La couleur est gérée dynamiquement dans le JSX au-dessus
+    elevation: 1.5,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.08,
+    shadowRadius: 2,
   },
   dot: { width: 6, height: 6, borderRadius: 3, marginRight: 5 },
   badgeText: { fontSize: 10, fontWeight: "800" },
   dateText: { fontSize: 10, color: Colors.light.textMuted },
   infoIconButton: { padding: 5 },
   documentIconButton: {
-    flexDirection: 'row', // Force l'icône et le texte à être côte à côte
-    alignItems: 'center', // Centre verticalement l'icône et le texte
+    flexDirection: 'row',
+    alignItems: 'center',
     backgroundColor: '#e0f2fe',
     paddingHorizontal: 10,
     paddingVertical: 6,
     borderRadius: 12,
+    
+    // 🟢 AJOUTS : Bordure fine + Ombre légère (iOS & Android)
+    borderWidth: 1,
+    borderColor: '#7dd3fc', // Une couleur azur un peu plus foncée que le fond du bouton
+    elevation: 1.5,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.08,
+    shadowRadius: 2,
   },
   documentButtonText: {
     fontSize: 12,

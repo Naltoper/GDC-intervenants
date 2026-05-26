@@ -9,6 +9,12 @@ interface StatusModalProps {
   onCancel: () => void;
 }
 
+const STATUS_STYLE_CONFIG: Record<string, { border: string; bg: string; text: string }> = {
+  "Non traité": { border: "#ef4444", bg: "#fef2f2", text: "#ef4444" }, // Rouge
+  "En cours":   { border: "#f59e0b", bg: "#fffbeb", text: "#f59e0b" }, // Orange
+  "Résolu":     { border: "#10ac56", bg: "#e6f4f1", text: "#10ac56" }, // Vert
+};
+
 export const StatusModal = ({
   visible,
   currentStatus,
@@ -22,34 +28,45 @@ export const StatusModal = ({
     <Modal visible={visible} transparent animationType="fade" onRequestClose={onCancel}>
       <View style={styles.modalOverlay}>
         <View style={styles.modalContent}>
-          <Text style={styles.modalTitle}>Changer le statut</Text>
+          <Text style={styles.modalTitle}>Modifier le statut</Text>
           
-          {statuses.map((s) => (
-            <TouchableOpacity
-              key={s}
-              style={[
-                styles.statusOption,
-                currentStatus === s && styles.statusOptionSelected,
-              ]}
-              onPress={() => onSelect(s)}
-            >
-              <Text
-                style={{
-                  color: currentStatus === s ? "#00b4d8" : "#64748b",
-                  fontWeight: "600",
-                }}
+          {statuses.map((s) => {
+            // On récupère la configuration de couleur du statut actuel
+            const isSelected = currentStatus === s;
+            const statusColors = STATUS_STYLE_CONFIG[s];
+
+            return (
+              <TouchableOpacity
+                key={s}
+                style={[
+                  styles.statusOption,
+                  // Si le bouton est sélectionné, on applique ses couleurs personnalisées en ligne
+                  isSelected && {
+                    borderColor: statusColors.border,
+                    backgroundColor: statusColors.bg,
+                  },
+                ]}
+                onPress={() => onSelect(s)}
               >
-                {s}
-              </Text>
-            </TouchableOpacity>
-          ))}
+                <Text
+                  style={{
+                    // Le texte prend aussi la couleur du statut s'il est sélectionné
+                    color: isSelected ? statusColors.text : "#64748b",
+                    fontWeight: "600",
+                  }}
+                >
+                  {s}
+                </Text>
+              </TouchableOpacity>
+            );
+          })}
 
           <TouchableOpacity style={styles.confirmBtn} onPress={onConfirm}>
             <Text style={styles.confirmBtnText}>Enregistrer</Text>
           </TouchableOpacity>
 
           <TouchableOpacity onPress={onCancel} style={styles.closeButton}>
-            <Text style={styles.cancelText}>Fermer</Text>
+            <Text style={styles.cancelText}>Annuler</Text>
           </TouchableOpacity>
         </View>
       </View>
@@ -87,10 +104,6 @@ const styles = StyleSheet.create({
     borderColor: "#f1f5f9",
     marginBottom: 10,
     alignItems: "center",
-  },
-  statusOptionSelected: {
-    borderColor: "#00b4d8",
-    backgroundColor: "#f0f9ff",
   },
   confirmBtn: {
     width: "100%",

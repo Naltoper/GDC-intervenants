@@ -1,21 +1,28 @@
-import React from 'react';
-import { 
-  TouchableOpacity, 
-  Text, 
-  StyleSheet, 
-  View, 
-  DimensionValue, 
-  StyleProp, 
-  ViewStyle 
-} from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
+import React from 'react';
+import {
+  DimensionValue,
+  StyleProp,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+  ViewStyle,
+} from 'react-native';
 
-// Définition des types pour TypeScript
+import { APP_COLORS } from '../../constants/theme';
+
 interface GradientButtonProps {
   title: string;
   icon?: React.ReactNode;
   onPress: () => void;
-  colors: [string, string, ...string[]];
+
+  /**
+   * Optionnel :
+   * si on ne donne pas colors, le bouton utilise les couleurs globales de l'app.
+   */
+  colors?: [string, string, ...string[]];
+
   width?: DimensionValue;
   height?: DimensionValue;
   style?: StyleProp<ViewStyle>;
@@ -25,14 +32,14 @@ export const GradientButton = ({
   title,
   icon,
   onPress,
-  colors,
-  width = '100%', // Valeur par défaut
-  height = 110,   // Valeur par défaut correspondant à tes boutons actuels
+  colors = [APP_COLORS.gradient.start, APP_COLORS.gradient.end],
+  width = '100%',
+  height = 110,
   style,
 }: GradientButtonProps) => {
   return (
-    <TouchableOpacity 
-      onPress={onPress} 
+    <TouchableOpacity
+      onPress={onPress}
       activeOpacity={0.85}
       style={[{ width, height }, style]}
     >
@@ -43,6 +50,7 @@ export const GradientButton = ({
         style={styles.gradient}
       >
         {icon && <View style={styles.iconContainer}>{icon}</View>}
+
         <Text style={styles.buttonText}>{title}</Text>
       </LinearGradient>
     </TouchableOpacity>
@@ -56,22 +64,24 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     padding: 15,
-    // Ombre légère pour le relief
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 3.84,
+
+    shadowColor: APP_COLORS.primary,
+    shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: 0.18,
+    shadowRadius: 5,
     elevation: 5,
   },
+
   iconContainer: {
     marginBottom: 8,
   },
+
   buttonText: {
-    color: '#fff',
+    color: APP_COLORS.white,
     fontSize: 16,
     fontWeight: '700',
     textAlign: 'center',
-    textShadowColor: 'rgba(0, 0, 0, 0.1)',
+    textShadowColor: 'rgba(0, 0, 0, 0.12)',
     textShadowOffset: { width: 1, height: 1 },
     textShadowRadius: 2,
   },

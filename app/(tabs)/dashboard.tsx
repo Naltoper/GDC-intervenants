@@ -1,3 +1,4 @@
+import { LinearGradient } from "expo-linear-gradient";
 import { useRouter } from "expo-router";
 import { BarChart3, ChevronLeft } from "lucide-react-native";
 import { useState } from "react";
@@ -10,11 +11,11 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-
 import { ReportCard } from "../../components/cards/ReportCard";
 import { ReportDetailModal } from "../../components/modals/ReportDetailModal";
 import { StatusModal } from "../../components/modals/StatusModal";
 import { FilterBar } from "../../components/navigation/FilterBar";
+import { APP_COLORS } from "../../constants/theme";
 import { useGetAllReports } from "../../hooks/useGetAllReports";
 
 export default function DashboardScreen() {
@@ -70,16 +71,21 @@ export default function DashboardScreen() {
 
 
       {/* BOUTON STATISTIQUES */}
-      <View style={styles.statsButtonWrapper}>
-        <TouchableOpacity
+      <TouchableOpacity
+         onPress={() => router.push("/(tabs)/statistics")}
+        activeOpacity={0.85}
+        style={styles.statsButtonWrapper}
+      >
+        <LinearGradient
+          colors={[APP_COLORS.gradient.start, APP_COLORS.gradient.end]}
+          start={{ x: 0, y: 0 }}
+          end={{ x: 1, y: 1 }}
           style={styles.statsButton}
-          activeOpacity={0.85}
-          onPress={() => router.push("../(tabs)/statistics")}
         >
-          <BarChart3 color="#ffffff" size={22} />
+          <BarChart3 color={APP_COLORS.white} size={22} />
           <Text style={styles.statsButtonText}>Voir les statistiques</Text>
-        </TouchableOpacity>
-      </View>
+        </LinearGradient>
+      </TouchableOpacity>
 
       {/* FILTRES SCROLLABLES vers la droite */}
       <FilterBar currentFilter={filter} onSelectFilter={setFilter} />
@@ -179,30 +185,31 @@ const styles = StyleSheet.create({
   },
 
   statsButtonWrapper: {
-    paddingHorizontal: 20,
-    paddingTop: 16,
-    backgroundColor: "#f8fafc",
+    width: "100%",
+    borderRadius: 16,
+    overflow: "hidden",
+    marginTop: 10,
+    marginBottom: 10,
   },
 
   statsButton: {
-    backgroundColor: "#023e8a",
+    height: 56,
     borderRadius: 16,
-    paddingVertical: 14,
-    paddingHorizontal: 18,
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
     gap: 10,
-    elevation: 3,
-    shadowColor: "#023e8a",
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.2,
-    shadowRadius: 6,
+
+    shadowColor: APP_COLORS.primary,
+    shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: 0.18,
+    shadowRadius: 5,
+    elevation: 5,
   },
 
   statsButtonText: {
-    color: "#ffffff",
+    color: APP_COLORS.white,
     fontSize: 16,
-    fontWeight: "700",
+    fontWeight: "800",
   },
 });

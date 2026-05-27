@@ -1,8 +1,8 @@
+import { Info, MessageCircle, Shield, User } from 'lucide-react-native';
 import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
-import { Shield, User, Info, MessageCircle } from 'lucide-react-native';
-import { GradientButton } from '../buttons/GradientButton';
+import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { Report } from '../../types/report';
+import { GradientButton } from '../buttons/GradientButton';
 
 // On déplace les constantes de couleurs ici car elles sont liées au design de la carte
 export const STATUS_COLORS: Record<string, { bg: string; dot: string; text: string }> = {
@@ -52,7 +52,6 @@ export const ReportCard = ({ item, onDetails, onStatus, onChat }: ReportCardProp
         <GradientButton
           title="Répondre"
           icon={<MessageCircle size={18} color="white" />}
-          colors={["#48a4f4", "#00b4d8"]}
           onPress={onChat}
           width="100%"
           height={80}

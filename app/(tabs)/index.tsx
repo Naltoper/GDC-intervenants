@@ -1,10 +1,10 @@
-import React from 'react';
-import { View, Text, StyleSheet, ScrollView, Image} from 'react-native';
 import { useRouter } from 'expo-router';
 import { Lock, Shield } from 'lucide-react-native';
-import { GradientButton } from '../../components/buttons/GradientButton';
-import { InstallBanner } from '../../components/banners/InstallBanner';
+import React from 'react';
+import { Image, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { InstallBanner } from '../../components/banners/InstallBanner';
+import { GradientButton } from '../../components/buttons/GradientButton';
 
 
 export default function HomeScreen() {
@@ -43,7 +43,6 @@ export default function HomeScreen() {
           <GradientButton 
             title="Espace Intervenants"
             icon={<Lock color="white" size={32} />}
-            colors={["#48a4f4ff", "#10ac56ff", "#48a4f4ff"]}
             onPress={() => router.push('/(tabs)/login')}
             width="100%" // fullWidth
           />

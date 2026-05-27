@@ -1,4 +1,3 @@
-import { GradientButton } from "../../components/buttons/GradientButton";
 import { Stack, useRouter } from "expo-router";
 import { ArrowLeft, Lock, Mail, ShieldCheck } from "lucide-react-native";
 import React, { useState } from "react";
@@ -12,6 +11,7 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
+import { GradientButton } from "../../components/buttons/GradientButton";
 
 /**
  * Sous-composant pour les champs de saisie (Refactorisation)
@@ -92,7 +92,6 @@ export default function LoginScreen() {
           <View style={styles.buttonContainer}>
             <GradientButton
               title="SE CONNECTER"
-              colors={["#48a4f4", "#10ac56"]}
               onPress={handleLogin}
               width="100%"
               height={80}

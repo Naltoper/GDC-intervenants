@@ -1,6 +1,6 @@
 /**
- * Below are the colors that are used in the app. The colors are defined in the light and dark mode.
- * There are many other ways to style your app. For example, [Nativewind](https://www.nativewind.dev/), [Tamagui](https://tamagui.dev/), [unistyles](https://reactnativeunistyles.vercel.app), etc.
+ * Below are the colors that are used in the app.
+ * The colors are defined in the light and dark mode.
  */
 
 import { Platform } from 'react-native';
@@ -8,6 +8,10 @@ import { Platform } from 'react-native';
 const tintColorLight = '#0a7ea4';
 const tintColorDark = '#fff';
 
+/**
+ * Couleurs utilisées par le thème Expo par défaut
+ * Exemple : tabs, icônes, texte système, etc.
+ */
 export const Colors = {
   light: {
     text: '#11181C',
@@ -60,6 +64,33 @@ export const Colors = {
   },
 };
 
+export const APP_COLORS = {
+  primary: '#48a4f4',
+  secondary: '#10ac56',
+  blueDark: '#023e8a',
+  blue: '#0077b6',
+
+  background: '#f8fafc',
+  surface: '#ffffff',
+  border: '#e2e8f0',
+
+  text: '#0f172a',
+  textMuted: '#64748b',
+
+  white: '#ffffff',
+
+  status: {
+    pending: '#eb2525',
+    inProgress: '#f97316',
+    resolved: '#10ac56',
+    danger: '#dc2626',
+  },
+
+  gradient: {
+    start: '#48a4f4',
+    end: '#10ac56',
+  },
+};
 export const Fonts = Platform.select({
   ios: {
     /** iOS `UIFontDescriptorSystemDesignDefault` */

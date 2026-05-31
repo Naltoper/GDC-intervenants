@@ -18,7 +18,6 @@ import Animated, {
   withSpring,
 } from "react-native-reanimated";
 
-// Définition des types pour TypeScript
 interface GradientButtonProps {
   title: string;
   icon?: React.ReactNode;
@@ -128,6 +127,7 @@ const styles = StyleSheet.create({
   iconContainer: {
     marginBottom: 8,
   },
+
   buttonText: {
     color: Colors.light.surface,
     fontSize: 16,

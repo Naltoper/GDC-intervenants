@@ -1,6 +1,7 @@
 import { BlurView } from "expo-blur";
+import { LinearGradient } from "expo-linear-gradient"; // 🟢 Ajouté pour le bouton stats
 import { useRouter } from "expo-router";
-import { ChevronLeft } from "lucide-react-native";
+import { BarChart3, ChevronLeft } from "lucide-react-native"; // 🟢 Ajouté BarChart3
 import { useState } from "react";
 import {
   ActivityIndicator,
@@ -23,7 +24,7 @@ import { ReportCard } from "../../components/cards/ReportCard";
 import { ReportDetailModal } from "../../components/modals/ReportDetailModal";
 import { StatusModal } from "../../components/modals/StatusModal";
 import { FilterBar } from "../../components/navigation/FilterBar";
-import { Colors } from "../../constants/theme"; // Importation du thème
+import { Colors, APP_COLORS } from "../../constants/theme"; // 🟢 On garde les deux imports de thèmes
 import { useGetAllReports } from "../../hooks/useGetAllReports";
 
 const HEADER_MAX_HEIGHT = 140;
@@ -43,8 +44,12 @@ export default function DashboardScreen() {
 
   const onUpdateStatus = async () => {
     if (!selectedReport) return;
+
     const success = await updateReportStatus(selectedReport.id, tempStatus);
-    if (success) setIsStatusModalVisible(false);
+
+    if (success) {
+      setIsStatusModalVisible(false);
+    }
   };
 
   const filteredReports =
@@ -144,7 +149,26 @@ export default function DashboardScreen() {
             paddingHorizontal: 20,
           }}
           ListHeaderComponent={
-            <View style={{ marginBottom: 15, marginHorizontal: -20 }}>
+            <View style={{ marginBottom: 15 }}>
+              
+              {/* 🟢 LE BOUTON STATISTIQUES DE TON COLLÈGUE INJECTÉ ICI */}
+              <TouchableOpacity
+                onPress={() => router.push("/(tabs)/statistics")}
+                activeOpacity={0.85}
+                style={styles.statsButtonWrapper}
+              >
+                <LinearGradient
+                  colors={[APP_COLORS.gradient.start, APP_COLORS.gradient.end]}
+                  start={{ x: 0, y: 0 }}
+                  end={{ x: 1, y: 1 }}
+                  style={styles.statsButton}
+                >
+                  <BarChart3 color={APP_COLORS.white} size={22} />
+                  <Text style={styles.statsButtonText}>Voir les statistiques</Text>
+                </LinearGradient>
+              </TouchableOpacity>
+
+              {/* Ta barre de filtres d'origine */}
               <FilterBar currentFilter={filter} onSelectFilter={setFilter} />
             </View>
           }
@@ -246,4 +270,26 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   smallTitle: { fontSize: 16, fontWeight: "700", color: Colors.light.primary },
+  // 🟢 Styles requis pour le bouton statistiques
+  statsButtonWrapper: {
+    width: "100%",
+    borderRadius: 16,
+    overflow: "hidden",
+    marginTop: 10,
+    marginBottom: 10,
+  },
+  statsButton: {
+    height: 56,
+    borderRadius: 16,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: 10,
+    elevation: 5,
+  },
+  statsButtonText: {
+    color: "#fff",
+    fontSize: 16,
+    fontWeight: "800",
+  },
 });

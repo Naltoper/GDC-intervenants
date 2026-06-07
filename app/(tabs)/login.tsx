@@ -10,6 +10,7 @@ import {
   TextInput,
   TouchableOpacity,
   View,
+  ImageBackground
 } from "react-native";
 import { GradientButton } from "../../components/buttons/GradientButton";
 
@@ -54,6 +55,12 @@ export default function LoginScreen() {
       behavior={Platform.OS === "ios" ? "padding" : "height"}
       style={styles.safeArea}
     >
+      <ImageBackground
+              source={require('../../assets/images/lyceeBgBlur.png')}
+              style={styles.screenBackground}
+              imageStyle={styles.screenBackgroundImage}
+              resizeMode="cover"
+      >
       <Stack.Screen options={{ headerShown: false }} />
 
       <ScrollView contentContainerStyle={styles.container}>
@@ -106,12 +113,13 @@ export default function LoginScreen() {
           </View>
         </View>
       </ScrollView>
+      </ImageBackground>
     </KeyboardAvoidingView>
   );
 }
 
 const styles = StyleSheet.create({
-  safeArea: { flex: 1, backgroundColor: "#f8fafc" },
+  safeArea: { flex: 1, backgroundColor: "#b6d9ff" },
   container: { flexGrow: 1, padding: 24, justifyContent: "center" },
   backButton: { position: "absolute", top: 50, left: 20, zIndex: 10 },
   header: { alignItems: "center", marginBottom: 50 },
@@ -129,8 +137,9 @@ const styles = StyleSheet.create({
     marginVertical: 15,
   },
   subtitle: {
-    fontSize: 16,
-    color: "#64748b",
+    fontSize: 17,
+    fontWeight: "900",
+    color: "#2f3640",
     textAlign: "center",
     paddingHorizontal: 20,
     lineHeight: 22,
@@ -160,4 +169,12 @@ const styles = StyleSheet.create({
     borderRadius: 20,
   },
   footerNote: { fontSize: 13, color: "#0077b6", fontWeight: "600" },
+  screenBackground: {
+    flex: 1,
+    width: '100%',
+    height: '100%',
+  },
+  screenBackgroundImage: {
+    opacity: 0.5, 
+  },
 });

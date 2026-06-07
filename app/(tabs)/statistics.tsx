@@ -16,6 +16,7 @@ import {
   Text,
   TouchableOpacity,
   View,
+  ImageBackground
 } from "react-native";
 
 import { APP_COLORS } from "../../constants/theme";
@@ -74,9 +75,16 @@ export default function StatisticsScreen() {
 
   return (
     <>
+    
       <Stack.Screen options={{ headerShown: false }} />
-
+      
       <View style={styles.container}>
+        <ImageBackground
+              source={require('../../assets/images/lyceeBgBlur.png')}
+              style={styles.screenBackground}
+              imageStyle={styles.screenBackgroundImage}
+              resizeMode="cover"
+        >
         <View style={styles.headerContainer}>
           <TouchableOpacity
             onPress={() => router.replace("/(tabs)/dashboard")}
@@ -193,7 +201,7 @@ export default function StatisticsScreen() {
           </View>
 
           <Text style={styles.sectionTitle}>
-            Niveaux d'urgence
+            Niveaux d&apos;urgence
           </Text>
 
           <View style={styles.listCard}>
@@ -214,6 +222,7 @@ export default function StatisticsScreen() {
             )}
           </View>
         </ScrollView>
+        </ImageBackground>
       </View>
     </>
   );
@@ -469,5 +478,13 @@ const styles = StyleSheet.create({
     fontSize: 14,
     textAlign: "center",
     paddingVertical: 10,
+  },
+  screenBackground: {
+    flex: 1,
+    width: '100%',
+    height: '100%',
+  },
+  screenBackgroundImage: {
+    opacity: 0.5, 
   },
 });

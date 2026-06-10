@@ -293,7 +293,7 @@ function ProgressRow({
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: APP_COLORS.background,
+    backgroundColor: "#b6d9ff",
   },
 
   loadingContainer: {

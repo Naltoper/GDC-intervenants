@@ -33,7 +33,7 @@ export default function HomeScreen() {
         <View style={styles.header}>
           <View style={styles.logoContainer}>
             <Image 
-              source={require('../../assets/images/logo.png')} 
+              source={require('../../assets/images/logo.jpg')} 
               style={styles.logo}
               resizeMode="cover"
             />
@@ -43,8 +43,8 @@ export default function HomeScreen() {
           {/* INTÉGRATION DE L'ENGAGEMENT ITEM POUR LA LISIBILITÉ */}
           <EngagementItem 
             icon={<Shield color="white" size={28} strokeWidth={2.5} />}
-            title="Votre anonymat est notre priorité"
-            desc="Un espace sécurisé et bienveillant pour briser le silence et lutter contre le harcèlement scolaire."
+            title="Espace de Gestion et Suivi"
+            desc="Analysez les signalements reçus, échangez en toute sécurité avec les élèves et agissez au sein de la cellule pour briser le silence."
             colors={["#023e8a", "#0077b6"]} // Dégradé bleu marine protecteur et lisible
           />
         </View>
@@ -56,6 +56,7 @@ export default function HomeScreen() {
             title="Espace Intervenants"
             icon={<Lock color="white" size={32} />}
             onPress={() => router.push('/(tabs)/login')}
+            colors={["#56b0ff", "#52c686","#56b0ff"]}
             width="100%" // fullWidth
           />
         </View>

@@ -231,7 +231,7 @@ export default function DashboardScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: Colors.light.background, // Utilisation du thème
+    backgroundColor: "#b6d9ff", 
   },
   headerContainer: {
   position: "absolute",

@@ -100,6 +100,7 @@ export default function LoginScreen() {
             <GradientButton
               title="SE CONNECTER"
               onPress={handleLogin}
+              colors={["#56b0ff", "#52c686","#56b0ff"]}
               width="100%"
               height={80}
             />

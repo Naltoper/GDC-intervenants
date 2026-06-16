@@ -1,10 +1,12 @@
 import { useRouter } from 'expo-router';
 import { Lock, Shield } from 'lucide-react-native';
 import React from 'react';
-import { Image, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Image, ScrollView, StyleSheet, Text, View, ImageBackground } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { InstallBanner } from '../../components/banners/InstallBanner';
 import { GradientButton } from '../../components/buttons/GradientButton';
+import EngagementItem from '../../components/cards/EngagementItem';
+
 
 
 export default function HomeScreen() {
@@ -12,6 +14,12 @@ export default function HomeScreen() {
 
   return (
     <SafeAreaView style={styles.safeArea}>
+      <ImageBackground
+        source={require('../../assets/images/lyceeBg.jpg')}
+        style={styles.screenBackground}
+        imageStyle={styles.screenBackgroundImage}
+        resizeMode="cover"
+      >
       <ScrollView contentContainerStyle={styles.container} showsVerticalScrollIndicator={false}>
         
         {/* --- AJOUT DE LA BANNIÈRE ICI --- */}
@@ -25,16 +33,20 @@ export default function HomeScreen() {
         <View style={styles.header}>
           <View style={styles.logoContainer}>
             <Image 
-              source={require('../../assets/images/logo.png')} 
+              source={require('../../assets/images/logo.jpg')} 
               style={styles.logo}
               resizeMode="cover"
             />
           </View>
           <Text style={styles.headerTitle}>Les Gardiens des Calanques</Text>
           <View style={styles.divider} />
-          <Text style={styles.subtitle}>
-            {"Un espace sécurisé et bienveillant pour briser le silence et lutter contre le harcélement scolaire.\n\n Votre anonymat est notre priorité."}
-          </Text>
+          {/* INTÉGRATION DE L'ENGAGEMENT ITEM POUR LA LISIBILITÉ */}
+          <EngagementItem 
+            icon={<Shield color="white" size={28} strokeWidth={2.5} />}
+            title="Espace de Gestion et Suivi"
+            desc="Analysez les signalements reçus, échangez en toute sécurité avec les élèves et agissez au sein de la cellule pour briser le silence."
+            colors={["#023e8a", "#0077b6"]} // Dégradé bleu marine protecteur et lisible
+          />
         </View>
         
         
@@ -44,6 +56,7 @@ export default function HomeScreen() {
             title="Espace Intervenants"
             icon={<Lock color="white" size={32} />}
             onPress={() => router.push('/(tabs)/login')}
+            colors={["#56b0ff", "#52c686","#56b0ff"]}
             width="100%" // fullWidth
           />
         </View>
@@ -58,6 +71,7 @@ export default function HomeScreen() {
         </View>
 
       </ScrollView>
+      </ImageBackground>
     </SafeAreaView>
   );
 }
@@ -154,5 +168,13 @@ const styles = StyleSheet.create({
     textTransform: 'uppercase',
     letterSpacing: 2,
     fontWeight: '500'
+  },
+  screenBackground: {
+    flex: 1,
+    width: '100%',
+    height: '100%',
+  },
+  screenBackgroundImage: {
+    opacity: 0.5, // Opacité ultra-légère (5%) pour préserver le contraste de tes cartes de discussion blanches
   },
 });

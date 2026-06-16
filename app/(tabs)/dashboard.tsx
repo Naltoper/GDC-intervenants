@@ -11,6 +11,7 @@ import {
   Text,
   TouchableOpacity,
   View,
+  ImageBackground
 } from "react-native";
 import Animated, {
   Extrapolation,
@@ -100,6 +101,12 @@ export default function DashboardScreen() {
 
   return (
     <View style={styles.container}>
+      <ImageBackground
+              source={require('../../assets/images/lyceeBgBlur.png')}
+              style={styles.screenBackground}
+              imageStyle={styles.screenBackgroundImage}
+              resizeMode="cover"
+      >
       <Animated.View style={[styles.headerContainer, headerAnimatedStyle]}>
         {Platform.OS === 'android' ? (
           <View style={[StyleSheet.absoluteFill, { backgroundColor: '#ffffff09' }]} />
@@ -216,6 +223,7 @@ export default function DashboardScreen() {
         report={selectedReport}
         onClose={() => setIsDetailsModalVisible(false)}
       />
+      </ImageBackground>
     </View>
   );
 }
@@ -223,7 +231,7 @@ export default function DashboardScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: Colors.light.background, // Utilisation du thème
+    backgroundColor: "#b6d9ff", 
   },
   headerContainer: {
   position: "absolute",
@@ -291,5 +299,13 @@ const styles = StyleSheet.create({
     color: "#fff",
     fontSize: 16,
     fontWeight: "800",
+  },
+  screenBackground: {
+    flex: 1,
+    width: '100%',
+    height: '100%',
+  },
+  screenBackgroundImage: {
+    opacity: 0.5, 
   },
 });

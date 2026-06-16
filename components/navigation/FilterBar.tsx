@@ -54,6 +54,7 @@ const styles = StyleSheet.create({
   filterBar: {
     backgroundColor: Colors.light.background,
     paddingVertical: 10,
+    borderRadius: 20,
   },
   filterScroll: {
     paddingHorizontal: 20,

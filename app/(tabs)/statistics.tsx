@@ -10,57 +10,38 @@ import {
 import React from "react";
 import {
   ActivityIndicator,
+  ImageBackground,
   RefreshControl,
   ScrollView,
   StyleSheet,
   Text,
   TouchableOpacity,
-  View,
-  ImageBackground
+  View
 } from "react-native";
 
+
+import { StatCard } from "../../components/statistics/statCard";
+import { StatisticsSection } from "../../components/statistics/StatisticsSection";
 import { APP_COLORS } from "../../constants/theme";
 import { useGetAllReports } from "../../hooks/useGetAllReports";
+import { useStatistics } from "../../hooks/useStatistics";
 const STATISTICS_COLOR = '#023e8a';
-type StatEntry = [string, number];
+
 
 export default function StatisticsScreen() {
   const router = useRouter();
 
   const { reports, loading, refreshing, fetchReports } = useGetAllReports();
 
-  const totalReports = reports.length;
-
-  const nonTraiteCount = reports.filter(
-    (report) => report.status === "Non traité"
-  ).length;
-
-  const enCoursCount = reports.filter(
-    (report) => report.status === "En cours"
-  ).length;
-
-  const resoluCount = reports.filter(
-    (report) => report.status === "Résolu"
-  ).length;
-
-  const countByField = (fieldName: string): StatEntry[] => {
-    const result: Record<string, number> = {};
-
-    reports.forEach((report: any) => {
-      const value = report[fieldName] || "Non renseigné";
-      result[value] = (result[value] || 0) + 1;
-    });
-
-    return Object.entries(result);
-  };
-
-  const typesStats = countByField("type_harcelement");
-  const urgencesStats = countByField("urgence");
-
-  const getPercentage = (value: number) => {
-    if (totalReports === 0) return 0;
-    return Math.round((value / totalReports) * 100);
-  };
+  const {
+    totalReports,
+    nonTraiteCount,
+    enCoursCount,
+    resoluCount,
+    typesStats,
+    urgencesStats,
+    getPercentage,
+  } = useStatistics(reports);
 
   if (loading && !refreshing) {
     return (
@@ -182,45 +163,23 @@ export default function StatisticsScreen() {
             Types de harcèlement
           </Text>
 
-          <View style={styles.listCard}>
-            {typesStats.length === 0 ? (
-              <Text style={styles.emptyText}>
-                Aucune donnée disponible.
-              </Text>
-            ) : (
-              typesStats.map(([label, value]) => (
-                <ProgressRow
-                  key={label}
-                  label={label}
-                  value={value}
-                  percentage={getPercentage(value)}
-                  color={APP_COLORS.primary}
-                />
-              ))
-            )}
-          </View>
+          <StatisticsSection
+            title="Répartition par type"
+            data={typesStats}
+            color={APP_COLORS.primary}
+            getPercentage={getPercentage}
+          />
 
           <Text style={styles.sectionTitle}>
             Niveaux d&apos;urgence
           </Text>
 
-          <View style={styles.listCard}>
-            {urgencesStats.length === 0 ? (
-              <Text style={styles.emptyText}>
-                Aucune donnée disponible.
-              </Text>
-            ) : (
-              urgencesStats.map(([label, value]) => (
-                <ProgressRow
-                  key={label}
-                  label={label}
-                  value={value}
-                  percentage={getPercentage(value)}
-                  color={APP_COLORS.status.danger}
-                />
-              ))
-            )}
-          </View>
+        <StatisticsSection
+          title="Répartition par urgence"
+          data={urgencesStats}
+          color={APP_COLORS.status.danger}
+          getPercentage={getPercentage}
+        />  
         </ScrollView>
         </ImageBackground>
       </View>
@@ -228,67 +187,7 @@ export default function StatisticsScreen() {
   );
 }
 
-function StatCard({
-  title,
-  value,
-  percentage,
-  color,
-  icon,
-}: {
-  title: string;
-  value: number;
-  percentage: number;
-  color: string;
-  icon: React.ReactNode;
-}) {
-  return (
-    <View style={styles.statCard}>
-      <View style={styles.statIcon}>{icon}</View>
 
-      <Text style={styles.statValue}>{value}</Text>
-      <Text style={styles.statTitle}>{title}</Text>
-
-      <Text style={[styles.statPercentage, { color }]}>
-        {percentage}%
-      </Text>
-    </View>
-  );
-}
-
-function ProgressRow({
-  label,
-  value,
-  percentage,
-  color,
-}: {
-  label: string;
-  value: number;
-  percentage: number;
-  color: string;
-}) {
-  return (
-    <View style={styles.progressRow}>
-      <View style={styles.progressHeader}>
-        <Text style={styles.progressLabel}>{label}</Text>
-        <Text style={styles.progressValue}>
-          {value} - {percentage}%
-        </Text>
-      </View>
-
-      <View style={styles.progressBackground}>
-        <View
-          style={[
-            styles.progressFill,
-            {
-              width: `${percentage}%`,
-              backgroundColor: color,
-            },
-          ]}
-        />
-      </View>
-    </View>
-  );
-}
 
 const styles = StyleSheet.create({
   container: {
@@ -392,92 +291,6 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     gap: 10,
     marginBottom: 22,
-  },
-
-  statCard: {
-    flex: 1,
-    backgroundColor: APP_COLORS.surface,
-    borderRadius: 18,
-    padding: 14,
-    alignItems: "center",
-    borderWidth: 1,
-    borderColor: APP_COLORS.border,
-  },
-
-  statIcon: {
-    marginBottom: 8,
-  },
-
-  statValue: {
-    fontSize: 24,
-    fontWeight: "900",
-    color: APP_COLORS.text,
-  },
-
-  statTitle: {
-    fontSize: 12,
-    color: APP_COLORS.textMuted,
-    textAlign: "center",
-    marginTop: 2,
-  },
-
-  statPercentage: {
-    fontSize: 13,
-    fontWeight: "800",
-    marginTop: 6,
-  },
-
-  listCard: {
-    backgroundColor: APP_COLORS.surface,
-    borderRadius: 20,
-    padding: 16,
-    marginBottom: 22,
-    borderWidth: 1,
-    borderColor: APP_COLORS.border,
-  },
-
-  progressRow: {
-    marginBottom: 16,
-  },
-
-  progressHeader: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    marginBottom: 8,
-    gap: 10,
-  },
-
-  progressLabel: {
-    flex: 1,
-    color: APP_COLORS.text,
-    fontSize: 14,
-    fontWeight: "700",
-  },
-
-  progressValue: {
-    color: APP_COLORS.textMuted,
-    fontSize: 13,
-    fontWeight: "700",
-  },
-
-  progressBackground: {
-    height: 9,
-    backgroundColor: APP_COLORS.border,
-    borderRadius: 20,
-    overflow: "hidden",
-  },
-
-  progressFill: {
-    height: "100%",
-    borderRadius: 20,
-  },
-
-  emptyText: {
-    color: APP_COLORS.textMuted,
-    fontSize: 14,
-    textAlign: "center",
-    paddingVertical: 10,
   },
   screenBackground: {
     flex: 1,

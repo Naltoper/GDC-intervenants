@@ -87,39 +87,35 @@ export const ReportCard = ({
         </TouchableOpacity> 
       </View>
 
-      <Text style={styles.reportText} numberOfLines={3}>
+      {/* MILIEU : Texte de la description limité à 5 lignes pour la lisibilité du Dashboard */}
+      <Text style={styles.reportText} numberOfLines={5}>
         {item.content}
       </Text>
 
-      <View style={styles.buttonWrapper}>
-        <GradientButton
-          title="Répondre"
-          icon={<MessageCircle size={18} color="white" />}
-          colors={[Colors.light.primaryLight, Colors.light.secondary]}
-          onPress={onChat}
-          width="100%"
-          height={80}
-        />
-      </View>
-
+      {/* FOOTER : Aligne le statut à gauche et le bouton rond à droite sur la même ligne */}
       <View style={styles.footer}>
         <TouchableOpacity
-          style={[styles.badge, { backgroundColor: colors.bg, borderColor: colors.text }]} // <-- Ajout de borderColor ici
+          style={[styles.badge, { backgroundColor: colors.bg, borderColor: colors.text }]}
           onPress={onStatus}
         >
           <View style={[styles.dot, { backgroundColor: colors.dot }]} />
           <Text style={[styles.badgeText, { color: colors.text }]}>
             {item.status}
           </Text>
-          {/* L'icône de modification ajoutée ICI */}
           <SquarePen size={12} color={colors.text} style={{ marginLeft: 6 }} />
         </TouchableOpacity>
-        
-        <Text style={styles.dateText}>
-          {item.created_at
-            ? new Date(item.created_at).toLocaleDateString()
-            : ""}
-        </Text>
+
+        {/* Le bouton "Répondre" devient un bouton rond placé tout à droite */}
+        <GradientButton
+          icon={<MessageCircle size={32} color="white" />}
+          colors={[Colors.light.primaryLight, Colors.light.secondary]}
+          onPress={onChat}
+          width={70}
+          height={70}
+          // On passe le style directement au composant pour qu'il l'applique à son propre fond bleu
+          style={{
+            borderRadius: 30,
+          }} title={""}        />
       </View>
     </Animated.View>
   );
@@ -145,14 +141,14 @@ const styles = StyleSheet.create({
   authorContainer: { flexDirection: "row", alignItems: "center" },
   typeText: { fontWeight: "700" },
   reportText: { color: Colors.light.text, marginBottom: 15, lineHeight: 20 },
-  buttonWrapper: { marginBottom: 15 },
   footer: {
     flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
+    justifyContent: "space-between", // Pousse le statut à gauche et le bouton rond à droite
+    alignItems: "center",            // Aligne les deux verticalement à la même hauteur
     borderTopWidth: 1,
     borderTopColor: Colors.light.borderSubtle,
-    paddingTop: 10,
+    paddingTop: 12,
+    marginTop: 5,
   },
   badge: {
     flexDirection: "row",
@@ -176,7 +172,6 @@ const styles = StyleSheet.create({
   documentIconButton: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#e0f2fe',
     paddingHorizontal: 10,
     paddingVertical: 6,
     borderRadius: 12,

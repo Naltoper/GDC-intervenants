@@ -1,8 +1,15 @@
-import { Info, MessageCircle, Shield, User, FileText, SquarePen } from "lucide-react-native";
+import { FileText, MessageCircle, Shield, SquarePen, User } from "lucide-react-native";
 import React from "react";
-import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import {
+  Pressable,
+  StyleSheet,
+  Text,
+  useWindowDimensions,
+  View,
+} from "react-native";
 import Animated, { FadeInDown } from "react-native-reanimated";
-import { Colors } from "../../constants/theme";
+
+import { APP_COLORS, Colors } from "../../constants/theme";
 import { Report } from "../../types/report";
 import { GradientButton } from "../buttons/GradientButton";
 
@@ -29,7 +36,7 @@ export const STATUS_COLORS: Record<
 
 interface ReportCardProps {
   item: Report;
-  index?: number; // <-- Ajout pour décaler l'animation selon la position
+  index?: number;
   onDetails: () => void;
   onStatus: () => void;
   onChat: () => void;
@@ -44,78 +51,114 @@ export const ReportCard = ({
 }: ReportCardProps) => {
   const colors =
     STATUS_COLORS[item.status || ""] || STATUS_COLORS["Non traité"];
+  const statusColor = colors.dot;
+
+  const { width } = useWindowDimensions();
+  const isCompact = width < 400;
 
   return (
-    // L'animation magique est ici : FadeInDown décale l'apparition de chaque carte de 100ms
     <Animated.View
       entering={FadeInDown.delay(index * 100)
         .springify()
         .damping(30)
         .mass(1.5)}
-      style={styles.card}
+      style={[
+        styles.card,
+        isCompact && styles.cardCompact,
+        { borderLeftColor: statusColor },
+      ]}
     >
-      <View style={styles.cardHeader}>
-        <View style={styles.authorContainer}>
-          {item.is_anonyme ? (
-            <Shield size={16} color={Colors.light.textMuted} />
-          ) : (
-            <User size={16} color={Colors.light.primary} />
-          )}
+      <View style={styles.topRow}>
+        <View style={styles.authorBlock}>
+          <View
+            style={[
+              styles.avatar,
+              item.is_anonyme ? styles.avatarAnonymous : styles.avatarNamed,
+            ]}
+          >
+            {item.is_anonyme ? (
+              <Shield size={18} color={Colors.light.textMuted} />
+            ) : (
+              <User size={18} color={Colors.light.primary} />
+            )}
+          </View>
           <Text
             style={[
-              styles.typeText,
+              styles.authorName,
               {
                 color: item.is_anonyme
                   ? Colors.light.textMuted
                   : Colors.light.primary,
               },
             ]}
+            numberOfLines={1}
+            ellipsizeMode="tail"
           >
             {item.is_anonyme ? " Anonyme" : ` ${item.author_name}`}
           </Text>
         </View>
-        {/* Nouveau bouton de détails avec l'icône de document ET le texte */}
-        <TouchableOpacity
+
+        <Pressable
           onPress={(event) => {
             event.stopPropagation();
             onDetails();
           }}
-          style={styles.documentIconButton} // On garde ce nom de style
+          style={({ pressed }) => [
+            styles.detailsButton,
+            pressed && styles.detailsButtonPressed,
+          ]}
+          accessibilityRole="button"
+          accessibilityLabel="Voir les détails"
         >
-          <FileText size={16} color="#023e8a" style={{ marginRight: 6 }} />
-          <Text style={styles.documentButtonText}>Détails</Text>
-        </TouchableOpacity> 
+          <FileText size={16} color={Colors.light.primary} />
+          <Text style={styles.detailsButtonText}>Détails</Text>
+        </Pressable>
       </View>
 
-      {/* MILIEU : Texte de la description limité à 5 lignes pour la lisibilité du Dashboard */}
-      <Text style={styles.reportText} numberOfLines={5}>
-        {item.content}
-      </Text>
-
-      {/* FOOTER : Aligne le statut à gauche et le bouton rond à droite sur la même ligne */}
-      <View style={styles.footer}>
-        <TouchableOpacity
-          style={[styles.badge, { backgroundColor: colors.bg, borderColor: colors.text }]}
-          onPress={onStatus}
+      <View style={styles.contentPanel}>
+        <Text
+          style={[styles.reportText, isCompact && styles.reportTextCompact]}
+          numberOfLines={5}
         >
-          <View style={[styles.dot, { backgroundColor: colors.dot }]} />
-          <Text style={[styles.badgeText, { color: colors.text }]}>
+          {item.content}
+        </Text>
+      </View>
+
+      <View style={styles.actionsRow}>
+        <Pressable
+          onPress={onStatus}
+          style={({ pressed }) => [
+            styles.statusButton,
+            {
+              backgroundColor: colors.bg,
+              borderColor: colors.text,
+            },
+            pressed && styles.statusButtonPressed,
+          ]}
+          accessibilityRole="button"
+          accessibilityLabel={`Statut : ${item.status}. Modifier`}
+        >
+          <View style={[styles.statusDot, { backgroundColor: colors.dot }]} />
+          <Text
+            style={[styles.statusText, { color: colors.text }]}
+            numberOfLines={1}
+          >
             {item.status}
           </Text>
-          <SquarePen size={12} color={colors.text} style={{ marginLeft: 6 }} />
-        </TouchableOpacity>
+          <SquarePen size={14} color={colors.text} />
+        </Pressable>
 
-        {/* Le bouton "Répondre" devient un bouton rond placé tout à droite */}
-        <GradientButton
-          icon={<MessageCircle size={32} color="white" />}
-          colors={[Colors.light.primaryLight, Colors.light.secondary]}
-          onPress={onChat}
-          width={70}
-          height={70}
-          // On passe le style directement au composant pour qu'il l'applique à son propre fond bleu
-          style={{
-            borderRadius: 30,
-          }} title={""}        />
+        <View style={styles.chatWrap}>
+          <GradientButton
+            icon={<MessageCircle size={28} color="white" />}
+            colors={[APP_COLORS.gradient.start, APP_COLORS.gradient.end]}
+            onPress={onChat}
+            width={isCompact ? 56 : 60}
+            height={isCompact ? 56 : 60}
+            style={styles.chatButton}
+            title=""
+          />
+        </View>
       </View>
     </Animated.View>
   );
@@ -126,68 +169,128 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.light.surface,
     padding: 20,
     borderRadius: 20,
-    marginBottom: 15,
-    elevation: 2,
+    marginBottom: 16,
+    borderLeftWidth: 6,
+    gap: 12,
+    elevation: 3,
     shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
+    shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.05,
-    shadowRadius: 8,
+    shadowRadius: 10,
   },
-  cardHeader: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    marginBottom: 10,
+  cardCompact: {
+    padding: 16,
+    borderRadius: 18,
+    marginBottom: 12,
+    borderLeftWidth: 6,
   },
-  authorContainer: { flexDirection: "row", alignItems: "center" },
-  typeText: { fontWeight: "700" },
-  reportText: { color: Colors.light.text, marginBottom: 15, lineHeight: 20 },
-  footer: {
-    flexDirection: "row",
-    justifyContent: "space-between", // Pousse le statut à gauche et le bouton rond à droite
-    alignItems: "center",            // Aligne les deux verticalement à la même hauteur
-    borderTopWidth: 1,
-    borderTopColor: Colors.light.borderSubtle,
-    paddingTop: 12,
-    marginTop: 5,
-  },
-  badge: {
+  topRow: {
     flexDirection: "row",
     alignItems: "center",
-    paddingHorizontal: 10,
-    paddingVertical: 5,
-    borderRadius: 12, // Légèrement plus moderne
-
-    // 🟢 AJOUTS : Bordure fine + Ombre légère (iOS & Android)
-    borderWidth: 1, // La couleur est gérée dynamiquement dans le JSX au-dessus
-    elevation: 1.5,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.08,
-    shadowRadius: 2,
+    justifyContent: "space-between",
+    gap: 10,
   },
-  dot: { width: 6, height: 6, borderRadius: 3, marginRight: 5 },
-  badgeText: { fontSize: 10, fontWeight: "800" },
-  dateText: { fontSize: 10, color: Colors.light.textMuted },
-  infoIconButton: { padding: 5 },
-  documentIconButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingHorizontal: 10,
-    paddingVertical: 6,
+  authorBlock: {
+    flex: 1,
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 10,
+    minWidth: 0,
+  },
+  avatar: {
+    width: 40,
+    height: 40,
     borderRadius: 12,
-    
-    // 🟢 AJOUTS : Bordure fine + Ombre légère (iOS & Android)
-    borderWidth: 1,
-    borderColor: '#7dd3fc', // Une couleur azur un peu plus foncée que le fond du bouton
-    elevation: 1.5,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.08,
-    shadowRadius: 2,
+    alignItems: "center",
+    justifyContent: "center",
   },
-  documentButtonText: {
-    fontSize: 12,
-    color: '#023e8a',
-    fontWeight: '700',
+  avatarNamed: {
+    backgroundColor: "#E8F4FD",
+  },
+  avatarAnonymous: {
+    backgroundColor: Colors.light.borderSubtle,
+  },
+  authorName: {
+    flex: 1,
+    minWidth: 0,
+    fontSize: 16,
+    fontWeight: "700",
+  },
+  detailsButton: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 6,
+    paddingHorizontal: 12,
+    paddingVertical: 10,
+    borderRadius: 12,
+    backgroundColor: "#F0F9FF",
+    borderWidth: 1,
+    borderColor: "#BAE6FD",
+    minHeight: 44,
+  },
+  detailsButtonPressed: {
+    opacity: 0.85,
+    transform: [{ scale: 0.98 }],
+  },
+  detailsButtonText: {
+    fontSize: 13,
+    fontWeight: "800",
+    color: Colors.light.primary,
+  },
+  contentPanel: {
+    backgroundColor: Colors.light.background,
+    borderRadius: 14,
+    paddingHorizontal: 14,
+    paddingVertical: 12,
+    borderWidth: 1,
+    borderColor: Colors.light.borderSubtle,
+  },
+  reportText: {
+    fontSize: 15,
+    lineHeight: 22,
+    color: Colors.light.text,
+    fontWeight: "500",
+  },
+  reportTextCompact: {
+    fontSize: 14,
+    lineHeight: 21,
+  },
+  actionsRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 12,
+  },
+  statusButton: {
+    flex: 1,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: 8,
+    minHeight: 48,
+    paddingHorizontal: 14,
+    paddingVertical: 10,
+    borderRadius: 14,
+    borderWidth: 1.5,
+  },
+  statusButtonPressed: {
+    opacity: 0.9,
+    transform: [{ scale: 0.99 }],
+  },
+  statusDot: {
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+  },
+  statusText: {
+    flexShrink: 1,
+    fontSize: 13,
+    fontWeight: "800",
+  },
+  chatWrap: {
+    flexShrink: 0,
+  },
+  chatButton: {
+    borderRadius: 30,
+    overflow: "hidden",
   },
 });

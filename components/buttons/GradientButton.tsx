@@ -97,8 +97,14 @@ export const GradientButton = ({
             <ActivityIndicator color={Colors.light.surface} size="small" />
           ) : (
             <>
-              {icon && <View style={styles.iconContainer}>{icon}</View>}
-              <Text style={styles.buttonText}>{title}</Text>
+              {icon && (
+                <View
+                  style={[styles.iconContainer, !title && styles.iconContainerSolo]}
+                >
+                  {icon}
+                </View>
+              )}
+              {title ? <Text style={styles.buttonText}>{title}</Text> : null}
             </>
           )}
         </LinearGradient>
@@ -126,6 +132,9 @@ const styles = StyleSheet.create({
   },
   iconContainer: {
     marginBottom: 8,
+  },
+  iconContainerSolo: {
+    marginBottom: 0,
   },
 
   buttonText: {

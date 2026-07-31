@@ -42,6 +42,16 @@ interface ReportCardProps {
   onChat: () => void;
 }
 
+const formatReportDate = (isoDate: string) => {
+  const date = new Date(isoDate);
+  if (Number.isNaN(date.getTime())) return "";
+
+  const day = String(date.getDate()).padStart(2, "0");
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const year = date.getFullYear();
+  return `${day}/${month}/${year}`;
+};
+
 export const ReportCard = ({
   item,
   index = 0,
@@ -52,6 +62,7 @@ export const ReportCard = ({
   const colors =
     STATUS_COLORS[item.status || ""] || STATUS_COLORS["Non traité"];
   const statusColor = colors.dot;
+  const reportDate = formatReportDate(item.created_at);
 
   const { width } = useWindowDimensions();
   const isCompact = width < 400;
@@ -124,34 +135,44 @@ export const ReportCard = ({
         </Text>
       </View>
 
-      <View style={styles.actionsRow}>
-        <Pressable
-          onPress={onStatus}
-          style={({ pressed }) => [
-            styles.statusButton,
-            {
-              backgroundColor: colors.bg,
-              borderColor: colors.text,
-            },
-            pressed && styles.statusButtonPressed,
-          ]}
-          accessibilityRole="button"
-          accessibilityLabel={`Statut : ${item.status}. Modifier`}
-        >
-          <View style={[styles.statusDot, { backgroundColor: colors.dot }]} />
-          <Text
-            style={[styles.statusText, { color: colors.text }]}
-            numberOfLines={1}
+      <View style={[styles.actionsRow, isCompact && styles.actionsRowCompact]}>
+        <View style={styles.actionsSide}>
+          <Pressable
+            onPress={onStatus}
+            style={({ pressed }) => [
+              styles.statusButton,
+              {
+                backgroundColor: colors.bg,
+                borderColor: colors.text,
+              },
+              pressed && styles.statusButtonPressed,
+            ]}
+            accessibilityRole="button"
+            accessibilityLabel={`Statut : ${item.status}. Modifier`}
           >
-            {item.status}
-          </Text>
-          <SquarePen size={14} color={colors.text} />
-        </Pressable>
+            <View style={[styles.statusDot, { backgroundColor: colors.dot }]} />
+            <Text
+              style={[styles.statusText, { color: colors.text }]}
+              numberOfLines={1}
+            >
+              {item.status}
+            </Text>
+            <SquarePen size={12} color={colors.text} />
+          </Pressable>
+        </View>
 
-        <View style={styles.chatWrap}>
+        <View style={styles.dateWrap}>
+          {reportDate ? (
+            <Text style={styles.reportDate} numberOfLines={1}>
+              {reportDate}
+            </Text>
+          ) : null}
+        </View>
+
+        <View style={[styles.actionsSide, styles.actionsSideRight]}>
           <GradientButton
             icon={<MessageCircle size={28} color="white" />}
-            colors={[APP_COLORS.gradient.start, APP_COLORS.gradient.end]}
+            colors={[APP_COLORS.gradient.start, APP_COLORS.gradient.start]}
             onPress={onChat}
             width={isCompact ? 56 : 60}
             height={isCompact ? 56 : 60}
@@ -170,7 +191,7 @@ const styles = StyleSheet.create({
     padding: 20,
     borderRadius: 20,
     marginBottom: 16,
-    borderLeftWidth: 6,
+    borderLeftWidth: 4,
     gap: 12,
     elevation: 3,
     shadowColor: "#000",
@@ -182,7 +203,7 @@ const styles = StyleSheet.create({
     padding: 16,
     borderRadius: 18,
     marginBottom: 12,
-    borderLeftWidth: 6,
+    borderLeftWidth: 4,
   },
   topRow: {
     flexDirection: "row",
@@ -258,39 +279,61 @@ const styles = StyleSheet.create({
   actionsRow: {
     flexDirection: "row",
     alignItems: "center",
-    gap: 12,
+    minHeight: 60,
+    gap: 8,
   },
-  statusButton: {
+  actionsRowCompact: {
+    minHeight: 56,
+  },
+  actionsSide: {
     flex: 1,
     flexDirection: "row",
     alignItems: "center",
+    justifyContent: "flex-start",
+  },
+  actionsSideRight: {
+    justifyContent: "flex-end",
+  },
+  statusButton: {
+    flexDirection: "row",
+    alignItems: "center",
     justifyContent: "center",
-    gap: 8,
-    minHeight: 48,
-    paddingHorizontal: 14,
-    paddingVertical: 10,
-    borderRadius: 14,
-    borderWidth: 1.5,
+    gap: 5,
+    minHeight: 34,
+    paddingHorizontal: 10,
+    paddingVertical: 6,
+    borderRadius: 10,
+    borderWidth: 1,
   },
   statusButtonPressed: {
     opacity: 0.9,
     transform: [{ scale: 0.99 }],
   },
   statusDot: {
-    width: 8,
-    height: 8,
-    borderRadius: 4,
+    width: 6,
+    height: 6,
+    borderRadius: 3,
   },
   statusText: {
     flexShrink: 1,
-    fontSize: 13,
-    fontWeight: "800",
+    fontSize: 11,
+    fontWeight: "700",
   },
-  chatWrap: {
-    flexShrink: 0,
+  dateWrap: {
+    alignItems: "center",
+    justifyContent: "center",
+    paddingHorizontal: 4,
+  },
+  reportDate: {
+    fontSize: 12,
+    fontWeight: "500",
+    color: Colors.light.textMuted,
+    letterSpacing: 0.2,
+    textAlign: "center",
   },
   chatButton: {
     borderRadius: 30,
     overflow: "hidden",
   },
 });
+

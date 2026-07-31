@@ -93,7 +93,7 @@ export default function StatisticsScreen() {
           refreshControl={
             <RefreshControl
               refreshing={refreshing}
-              onRefresh={fetchReports}
+              onRefresh={() => fetchReports({ pullToRefresh: true })}
               tintColor={APP_COLORS.primary}
               colors={[APP_COLORS.primary]}
             />

@@ -26,7 +26,9 @@ export default function RootLayout() {
           <Stack.Screen name="(tabs)/index" options={{ headerShown: false }} /> 
           <Stack.Screen name="(tabs)/login" options={{ headerShown: false }} />
           <Stack.Screen name="(tabs)/dashboard" options={{ headerShown: false }} />
+          <Stack.Screen name="(tabs)/reports" options={{ headerShown: false }} />
           <Stack.Screen name="(tabs)/statistics" options={{ headerShown: false }} />
+          <Stack.Screen name="(tabs)/chat-history" options={{ headerShown: false }} />
           <Stack.Screen name="chat/[id]" options={{ headerShown: false }} />
         </Stack>
       </SafeAreaView>

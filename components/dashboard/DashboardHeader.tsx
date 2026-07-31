@@ -1,5 +1,5 @@
 import { BlurView } from "expo-blur";
-import { ChevronLeft } from "lucide-react-native";
+import { ChevronLeft, Menu } from "lucide-react-native";
 import {
   Platform,
   StyleSheet,
@@ -9,49 +9,72 @@ import {
 } from "react-native";
 import Animated from "react-native-reanimated";
 
-import { DASHBOARD_TITLE } from "../../constants/dashboard";
+import { DASHBOARD_HEADER, DASHBOARD_TITLE } from "../../constants/dashboard";
 import { Colors } from "../../constants/theme";
 import { CollapsingHeaderAnimation } from "../../hooks/useCollapsingHeader";
 
-interface DashboardHeaderProps extends CollapsingHeaderAnimation {
-  reportCount: number;
-  onBack: () => void;
+interface DashboardHeaderProps extends Partial<CollapsingHeaderAnimation> {
+  onBack?: () => void;
+  onMenuPress?: () => void;
+  /** When true, left action is the hamburger menu instead of back. */
+  showMenu?: boolean;
+  /** Optional sticky title override (e.g. current filter label). */
+  stickyTitle?: string;
 }
 
 export const DashboardHeader = ({
-  reportCount,
   onBack,
-  headerAnimatedStyle,
-  largeTitleStyle,
-  smallTitleStyle,
+  onMenuPress,
+  showMenu = false,
+  stickyTitle = DASHBOARD_TITLE,
+  stickyBarStyle,
+  stickyTitleStyle,
 }: DashboardHeaderProps) => (
-  <Animated.View style={[styles.headerContainer, headerAnimatedStyle]}>
-    {Platform.OS === "android" ? (
-      <View style={[StyleSheet.absoluteFill, styles.androidOverlay]} />
-    ) : (
-      <BlurView intensity={80} tint="light" style={StyleSheet.absoluteFill} />
-    )}
-    <View style={styles.headerContent}>
-      <TouchableOpacity onPress={onBack} style={styles.backButton}>
-        <ChevronLeft
-          color={Colors.light.primary}
-          size={30}
-          strokeWidth={2.5}
-        />
+  <View style={styles.headerContainer} pointerEvents="box-none">
+    <Animated.View
+      style={[styles.backgroundLayer, stickyBarStyle]}
+      pointerEvents="none"
+    >
+      {Platform.OS === "ios" ? (
+        <>
+          <BlurView intensity={80} tint="light" style={StyleSheet.absoluteFill} />
+          <View style={[StyleSheet.absoluteFill, styles.iosTint]} />
+        </>
+      ) : (
+        <View style={[StyleSheet.absoluteFill, styles.androidFallback]} />
+      )}
+      <View style={styles.bottomBorder} />
+    </Animated.View>
+
+    <View style={styles.headerContent} pointerEvents="box-none">
+      <TouchableOpacity
+        onPress={showMenu ? onMenuPress : onBack}
+        style={styles.leftButton}
+        activeOpacity={0.7}
+        accessibilityRole="button"
+        accessibilityLabel={showMenu ? "Ouvrir le menu" : "Retour"}
+      >
+        {showMenu ? (
+          <Menu color={Colors.light.primary} size={26} strokeWidth={2.4} />
+        ) : (
+          <ChevronLeft
+            color={Colors.light.primary}
+            size={28}
+            strokeWidth={2.5}
+          />
+        )}
       </TouchableOpacity>
 
-      <Animated.View style={[styles.smallTitleWrapper, smallTitleStyle]}>
-        <Text style={styles.smallTitle}>{DASHBOARD_TITLE}</Text>
-      </Animated.View>
-
-      <Animated.View style={[styles.titleWrapper, largeTitleStyle]}>
-        <Text style={styles.title}>{DASHBOARD_TITLE}</Text>
-        <Text style={styles.subtitle}>
-          {reportCount} signalements reçus
+      <Animated.View
+        style={[styles.titleWrapper, stickyTitleStyle]}
+        pointerEvents="none"
+      >
+        <Text style={styles.stickyTitle} numberOfLines={1}>
+          {stickyTitle}
         </Text>
       </Animated.View>
     </View>
-  </Animated.View>
+  </View>
 );
 
 const styles = StyleSheet.create({
@@ -61,60 +84,50 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     zIndex: 10,
-    backgroundColor:
-      Platform.OS === "android" ? "#fffffff6" : "rgba(255, 255, 255, 0.6)",
-    borderBottomWidth: 1,
-    borderBottomColor: Colors.light.borderSubtle,
+    height: DASHBOARD_HEADER.STICKY_HEIGHT,
     overflow: "hidden",
-    ...Platform.select({
-      android: {
-        elevation: 4,
-        shadowColor: "#000",
-        shadowOffset: { width: 0, height: 4 },
-        shadowOpacity: 1,
-        shadowRadius: 8,
-      },
-    }),
   },
-  androidOverlay: {
-    backgroundColor: "#ffffff09",
+  backgroundLayer: {
+    ...StyleSheet.absoluteFillObject,
+  },
+  iosTint: {
+    backgroundColor: "rgba(255, 255, 255, 0.55)",
+  },
+  androidFallback: {
+    backgroundColor: "rgba(255, 255, 255, 0.94)",
+  },
+  bottomBorder: {
+    position: "absolute",
+    left: 0,
+    right: 0,
+    bottom: 0,
+    height: StyleSheet.hairlineWidth,
+    backgroundColor: Colors.light.border,
   },
   headerContent: {
     flex: 1,
-    justifyContent: "flex-end",
-    paddingBottom: 15,
+    justifyContent: "center",
   },
-  backButton: {
+  leftButton: {
     position: "absolute",
-    left: 15,
-    bottom: 15,
-    padding: 10,
-    zIndex: 20,
+    left: 8,
+    top: 0,
+    bottom: 0,
+    width: 44,
+    alignItems: "center",
+    justifyContent: "center",
+    zIndex: 2,
   },
   titleWrapper: {
+    ...StyleSheet.absoluteFillObject,
     alignItems: "center",
-    position: "absolute",
-    bottom: 15,
-    width: "100%",
+    justifyContent: "center",
+    paddingHorizontal: 52,
   },
-  title: {
-    fontSize: 22,
-    fontWeight: "800",
-    color: Colors.light.primary,
-  },
-  subtitle: {
-    fontSize: 12,
-    color: Colors.light.textMuted,
-  },
-  smallTitleWrapper: {
-    position: "absolute",
-    bottom: 25,
-    width: "100%",
-    alignItems: "center",
-  },
-  smallTitle: {
+  stickyTitle: {
     fontSize: 16,
     fontWeight: "700",
     color: Colors.light.primary,
+    textAlign: "center",
   },
 });

@@ -1,4 +1,4 @@
-import { Pressable, StyleSheet, Text, useWindowDimensions, View } from "react-native";
+import { Pressable, StyleSheet, Text, View } from "react-native";
 
 import { APP_COLORS, Colors } from "../../constants/theme";
 
@@ -15,61 +15,92 @@ const STATUS_DOT_COLORS: Record<string, string> = {
   Résolu: Colors.light.status.success,
 };
 
+const FILTER_ACTIVE_COLORS: Record<
+  string,
+  { background: string; border: string; text: string; shadow: string }
+> = {
+  Tous: {
+    background: APP_COLORS.primary,
+    border: APP_COLORS.primary,
+    text: Colors.light.surface,
+    shadow: APP_COLORS.primary,
+  },
+  "Non traité": {
+    background: Colors.light.status.error,
+    border: Colors.light.status.error,
+    text: Colors.light.surface,
+    shadow: Colors.light.status.error,
+  },
+  "En cours": {
+    background: Colors.light.status.warning,
+    border: Colors.light.status.warning,
+    text: Colors.light.surface,
+    shadow: Colors.light.status.warning,
+  },
+  Résolu: {
+    background: Colors.light.status.success,
+    border: Colors.light.status.success,
+    text: Colors.light.surface,
+    shadow: Colors.light.status.success,
+  },
+};
+
 export const FilterBar = ({
   currentFilter,
   onSelectFilter,
-}: FilterBarProps) => {
-  const { width } = useWindowDimensions();
-  const isCompact = width < 400;
+}: FilterBarProps) => (
+  <View style={styles.container}>
+    <Text style={styles.label}>Filtrer par statut</Text>
+    <View style={styles.grid}>
+      {FILTERS.map((filter) => {
+        const isActive = currentFilter === filter;
+        const activeColors =
+          FILTER_ACTIVE_COLORS[filter] ?? FILTER_ACTIVE_COLORS.Tous;
+        const dotColor =
+          filter === "Tous"
+            ? APP_COLORS.primary
+            : STATUS_DOT_COLORS[filter] ?? Colors.light.textMuted;
 
-  return (
-    <View style={styles.container}>
-      <Text style={styles.label}>Filtrer par statut</Text>
-      <View style={[styles.grid, isCompact && styles.gridCompact]}>
-        {FILTERS.map((filter) => {
-          const isActive = currentFilter === filter;
-          const dotColor =
-            filter === "Tous"
-              ? APP_COLORS.primary
-              : STATUS_DOT_COLORS[filter] ?? Colors.light.textMuted;
-
-          return (
-            <Pressable
-              key={filter}
-              accessibilityRole="button"
-              accessibilityState={{ selected: isActive }}
-              onPress={() => onSelectFilter(filter)}
-              style={({ pressed }) => [
-                styles.chip,
-                isCompact ? styles.chipCompact : styles.chipWide,
-                isActive && styles.chipActive,
-                pressed && !isActive && styles.chipPressed,
+        return (
+          <Pressable
+            key={filter}
+            accessibilityRole="button"
+            accessibilityState={{ selected: isActive }}
+            onPress={() => onSelectFilter(filter)}
+            style={({ pressed }) => [
+              styles.chip,
+              isActive && {
+                backgroundColor: activeColors.background,
+                borderColor: activeColors.border,
+                shadowColor: activeColors.shadow,
+              },
+              isActive && styles.chipActiveShadow,
+              pressed && !isActive && styles.chipPressed,
+            ]}
+          >
+            <View
+              style={[
+                styles.dot,
+                {
+                  backgroundColor: isActive ? Colors.light.surface : dotColor,
+                },
+                isActive && styles.dotActive,
+              ]}
+            />
+            <Text
+              style={[
+                styles.chipText,
+                isActive && { color: activeColors.text },
               ]}
             >
-              <View
-                style={[
-                  styles.dot,
-                  {
-                    backgroundColor: isActive ? Colors.light.surface : dotColor,
-                  },
-                  isActive && styles.dotActive,
-                ]}
-              />
-              <Text
-                style={[styles.chipText, isActive && styles.chipTextActive]}
-                numberOfLines={1}
-                adjustsFontSizeToFit
-                minimumFontScale={0.85}
-              >
-                {filter}
-              </Text>
-            </Pressable>
-          );
-        })}
-      </View>
+              {filter}
+            </Text>
+          </Pressable>
+        );
+      })}
     </View>
-  );
-};
+  </View>
+);
 
 const styles = StyleSheet.create({
   container: {
@@ -96,12 +127,12 @@ const styles = StyleSheet.create({
   grid: {
     flexDirection: "row",
     flexWrap: "wrap",
-    gap: 8,
-  },
-  gridCompact: {
     justifyContent: "space-between",
+    rowGap: 8,
+    columnGap: 8,
   },
   chip: {
+    width: "48%",
     minHeight: 44,
     borderRadius: 14,
     borderWidth: 1.5,
@@ -111,20 +142,9 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     gap: 8,
-    paddingHorizontal: 12,
+    paddingHorizontal: 10,
   },
-  chipCompact: {
-    width: "48.5%",
-  },
-  chipWide: {
-    flexGrow: 1,
-    flexBasis: "22%",
-    minWidth: 72,
-  },
-  chipActive: {
-    backgroundColor: Colors.light.primary,
-    borderColor: Colors.light.primary,
-    shadowColor: Colors.light.primary,
+  chipActiveShadow: {
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.22,
     shadowRadius: 8,
@@ -144,12 +164,8 @@ const styles = StyleSheet.create({
     borderColor: "rgba(255, 255, 255, 0.45)",
   },
   chipText: {
-    flexShrink: 1,
     fontSize: 13,
     fontWeight: "700",
     color: Colors.light.text,
-  },
-  chipTextActive: {
-    color: Colors.light.surface,
   },
 });

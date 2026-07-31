@@ -1,25 +1,44 @@
-import { useState, useEffect } from 'react';
-import { supabase } from '../lib/supabase';
-import { Report } from '../types/report';
+import { useCallback, useEffect, useState } from "react";
+
+import { supabase } from "../lib/supabase";
+import { Report } from "../types/report";
+
+type FetchReportsOptions = {
+  /** Background update: no full-screen loader, no pull-to-refresh spinner. */
+  silent?: boolean;
+  /** User-initiated pull-to-refresh. */
+  pullToRefresh?: boolean;
+};
 
 export const useGetAllReports = () => {
   const [reports, setReports] = useState<Report[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
 
-  const fetchReports = async () => {
-    setLoading(true);
+  const fetchReports = useCallback(async (options: FetchReportsOptions = {}) => {
+    const { silent = false, pullToRefresh = false } = options;
+
+    if (pullToRefresh) {
+      setRefreshing(true);
+    } else if (!silent) {
+      setLoading(true);
+    }
+
     const { data, error } = await supabase
       .from("reports")
       .select("*")
       .order("created_at", { ascending: false });
-    
+
     if (!error) {
       setReports(data || []);
     }
-    setLoading(false);
-    setRefreshing(false);
-  };
+
+    if (pullToRefresh) {
+      setRefreshing(false);
+    } else if (!silent) {
+      setLoading(false);
+    }
+  }, []);
 
   const updateReportStatus = async (id: string, newStatus: string) => {
     const { error } = await supabase
@@ -28,9 +47,8 @@ export const useGetAllReports = () => {
       .eq("id", id);
 
     if (!error) {
-      // On met à jour l'état local pour que l'interface change instantanément
       setReports((prev) =>
-        prev.map((r) => (r.id === id ? { ...r, status: newStatus } : r))
+        prev.map((r) => (r.id === id ? { ...r, status: newStatus } : r)),
       );
       return true;
     }
@@ -39,7 +57,7 @@ export const useGetAllReports = () => {
 
   useEffect(() => {
     fetchReports();
-  }, []);
+  }, [fetchReports]);
 
   return {
     reports,
@@ -47,6 +65,6 @@ export const useGetAllReports = () => {
     refreshing,
     fetchReports,
     updateReportStatus,
-    setRefreshing
+    setRefreshing,
   };
 };

@@ -6,10 +6,7 @@ import {
   useSharedValue,
 } from "react-native-reanimated";
 
-import {
-  DASHBOARD_HEADER,
-  DASHBOARD_SCROLL_DISTANCE,
-} from "../constants/dashboard";
+import { DASHBOARD_HEADER } from "../constants/dashboard";
 
 export const useCollapsingHeader = () => {
   const scrollY = useSharedValue(0);
@@ -20,36 +17,22 @@ export const useCollapsingHeader = () => {
     },
   });
 
-  const headerAnimatedStyle = useAnimatedStyle(() => {
-    const height = interpolate(
-      scrollY.value,
-      [0, DASHBOARD_SCROLL_DISTANCE],
-      [DASHBOARD_HEADER.MAX_HEIGHT, DASHBOARD_HEADER.MIN_HEIGHT],
-      Extrapolation.CLAMP,
-    );
-    return { height };
-  });
-
-  const largeTitleStyle = useAnimatedStyle(() => {
+  /** White/blur sticky background fades in as the page title card scrolls away. */
+  const stickyBarStyle = useAnimatedStyle(() => {
     const opacity = interpolate(
       scrollY.value,
-      [0, DASHBOARD_SCROLL_DISTANCE / 2],
-      [1, 0],
+      [0, DASHBOARD_HEADER.SHOW_AFTER],
+      [0, 1],
       Extrapolation.CLAMP,
     );
-    const translateY = interpolate(
-      scrollY.value,
-      [0, DASHBOARD_SCROLL_DISTANCE],
-      [0, -15],
-      Extrapolation.CLAMP,
-    );
-    return { opacity, transform: [{ translateY }] };
+    return { opacity };
   });
 
-  const smallTitleStyle = useAnimatedStyle(() => {
+  /** Compact sticky title fades in once the page title card scrolls away. */
+  const stickyTitleStyle = useAnimatedStyle(() => {
     const opacity = interpolate(
       scrollY.value,
-      [DASHBOARD_SCROLL_DISTANCE / 2, DASHBOARD_SCROLL_DISTANCE],
+      [DASHBOARD_HEADER.SHOW_AFTER * 0.35, DASHBOARD_HEADER.SHOW_AFTER],
       [0, 1],
       Extrapolation.CLAMP,
     );
@@ -58,13 +41,12 @@ export const useCollapsingHeader = () => {
 
   return {
     scrollHandler,
-    headerAnimatedStyle,
-    largeTitleStyle,
-    smallTitleStyle,
+    stickyBarStyle,
+    stickyTitleStyle,
   };
 };
 
 export type CollapsingHeaderAnimation = Pick<
   ReturnType<typeof useCollapsingHeader>,
-  "headerAnimatedStyle" | "largeTitleStyle" | "smallTitleStyle"
+  "stickyBarStyle" | "stickyTitleStyle"
 >;

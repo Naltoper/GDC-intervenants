@@ -22,13 +22,25 @@ export const useChatMessages = (reportId: string | undefined) => {
     if (!content.trim() || !reportId) return false;
     
     setLoading(true);
-    const { error } = await supabase
+    const { data, error } = await supabase
       .from('messages')
       .insert([{ 
         report_id: reportId, 
         content: content, 
         sender_role: role 
-      }]);
+      }])
+      .select()
+      .maybeSingle();
+
+    if (!error && data && role !== 'user') {
+      void fetch('https://gdc-eleves.vercel.app/api/notify-chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ record: data }),
+      }).catch((notifyError) => {
+        console.warn('[chat] notify-eleves', notifyError);
+      });
+    }
     
     setLoading(false);
     return !error; // Retourne true si ça a marché

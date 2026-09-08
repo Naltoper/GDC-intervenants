@@ -46,7 +46,12 @@ export const GradientButton = ({
       onPress={onPress}
       disabled={disabled}
       activeOpacity={0.82}
-      style={[{ width, height: resolvedHeight, opacity: disabled ? 0.55 : 1 }, style]}
+      style={[
+        styles.wrapper,
+        compact && styles.wrapperCompact,
+        { width, height: resolvedHeight, opacity: disabled ? 0.55 : 1 },
+        style,
+      ]}
       accessibilityRole="button"
       accessibilityLabel={accessibilityLabel || title || undefined}
     >
@@ -80,28 +85,31 @@ export const GradientButton = ({
 };
 
 const styles = StyleSheet.create({
-  gradient: {
-    flex: 1,
+  wrapper: {
     borderRadius: 20,
-    justifyContent: 'center',
-    alignItems: 'center',
-    paddingHorizontal: 16,
-    paddingVertical: 14,
-    borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.25)',
+    overflow: 'hidden',
     shadowColor: '#023e8a',
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.22,
     shadowRadius: 8,
     elevation: 6,
   },
-  gradientCompact: {
+  wrapperCompact: {
     borderRadius: 12,
-    paddingHorizontal: 12,
-    paddingVertical: 0,
     elevation: 3,
     shadowOpacity: 0.14,
     shadowRadius: 4,
+  },
+  gradient: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingHorizontal: 16,
+    paddingVertical: 14,
+  },
+  gradientCompact: {
+    paddingHorizontal: 12,
+    paddingVertical: 0,
   },
   gradientRow: {
     flexDirection: 'row',

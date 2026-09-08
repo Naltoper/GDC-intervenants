@@ -52,7 +52,9 @@ function ThemedRootShell({ webStyle }: { webStyle: ViewStyle }) {
           <Stack.Screen name="(tabs)/reports" />
           <Stack.Screen name="(tabs)/statistics" />
           <Stack.Screen name="(tabs)/chat-history" />
+          <Stack.Screen name="(tabs)/moderation" />
           <Stack.Screen name="chat/[id]" />
+          <Stack.Screen name="moderation/[id]" />
         </Stack>
       </SafeAreaView>
     </>

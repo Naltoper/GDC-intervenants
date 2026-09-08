@@ -1,3 +1,4 @@
+import { MessageSquareText, Users } from "lucide-react-native";
 import { useRouter } from "expo-router";
 import {
   ActivityIndicator,
@@ -6,8 +7,7 @@ import {
   StyleSheet,
 } from "react-native";
 
-import { ChatHistoryButton } from "../../components/dashboard/ChatHistoryButton";
-import { DashboardPageTitle } from "../../components/dashboard/DashboardPageTitle";
+import { DashboardLinkCard } from "../../components/dashboard/DashboardLinkCard";
 import { DashboardStatusGrid } from "../../components/dashboard/DashboardStatusGrid";
 import { PageHeader } from "../../components/headers/PageHeader";
 import { ScreenShell } from "../../components/layout/ScreenShell";
@@ -53,13 +53,28 @@ export default function DashboardScreen() {
             />
           }
         >
-          <DashboardPageTitle reportCount={dashboard.reports.length} />
           <DashboardStatusGrid
             cards={dashboard.statusCards}
             onSelect={openFilter}
           />
-          <ChatHistoryButton
+          <DashboardLinkCard
+            title="Historique des chats"
+            subtitle="Conversations avec les élèves"
+            icon={
+              <MessageSquareText
+                size={22}
+                color={colors.accent}
+                strokeWidth={2.4}
+              />
+            }
             onPress={() => router.push("/(tabs)/chat-history")}
+          />
+          <DashboardLinkCard
+            title="Modération de la Communauté"
+            subtitle="Surveiller et modérer le forum élèves"
+            icon={<Users size={22} color={colors.accent} strokeWidth={2.4} />}
+            onPress={() => router.push("/(tabs)/moderation")}
+            accessibilityLabel="Modération de la Communauté"
           />
         </ScrollView>
       )}

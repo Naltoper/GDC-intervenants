@@ -40,14 +40,10 @@ const styles = StyleSheet.create({
   },
   button: {
     height: 56,
-    borderRadius: 20,
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
     gap: 10,
-    elevation: 5,
-    borderWidth: 1,
-    borderColor: "rgba(255,255,255,0.25)",
   },
   text: {
     color: "#fff",

@@ -38,7 +38,8 @@ export const DASHBOARD_STATUS_CARDS: DashboardStatusCardConfig[] = [
     label: "Tous",
     accent: palette.primaryLight,
     background: palette.borderSubtle,
-    text: palette.accent,
+    // Même teinte que la barre verticale d'état
+    text: palette.primaryLight,
   },
   {
     key: "Non traité",

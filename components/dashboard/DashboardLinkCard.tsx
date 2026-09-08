@@ -1,13 +1,24 @@
-import { MessageSquareText } from "lucide-react-native";
+import type { ReactNode } from "react";
 import { Pressable, StyleSheet, Text, View } from "react-native";
 
 import { useAppTheme } from "../../contexts/ThemeContext";
 
-type ChatHistoryButtonProps = {
+type DashboardLinkCardProps = {
+  title: string;
+  subtitle: string;
+  icon: ReactNode;
   onPress: () => void;
+  accessibilityLabel?: string;
 };
 
-export function ChatHistoryButton({ onPress }: ChatHistoryButtonProps) {
+/** Carte d’action dashboard (même langage visuel que les tuiles Élève). */
+export function DashboardLinkCard({
+  title,
+  subtitle,
+  icon,
+  onPress,
+  accessibilityLabel,
+}: DashboardLinkCardProps) {
   const { colors, surface } = useAppTheme();
 
   return (
@@ -22,7 +33,7 @@ export function ChatHistoryButton({ onPress }: ChatHistoryButtonProps) {
         pressed && styles.pressed,
       ]}
       accessibilityRole="button"
-      accessibilityLabel="Historique des chats"
+      accessibilityLabel={accessibilityLabel ?? title}
     >
       <View
         style={[
@@ -33,14 +44,12 @@ export function ChatHistoryButton({ onPress }: ChatHistoryButtonProps) {
           },
         ]}
       >
-        <MessageSquareText size={22} color={colors.accent} strokeWidth={2.4} />
+        {icon}
       </View>
       <View style={styles.textWrap}>
-        <Text style={[styles.title, { color: colors.text }]}>
-          Historique des chats
-        </Text>
+        <Text style={[styles.title, { color: colors.text }]}>{title}</Text>
         <Text style={[styles.subtitle, { color: colors.textMuted }]}>
-          Conversations avec les élèves
+          {subtitle}
         </Text>
       </View>
     </Pressable>

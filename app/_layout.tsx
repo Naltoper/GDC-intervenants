@@ -1,44 +1,65 @@
 import { Stack } from 'expo-router';
-import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 import { StatusBar } from 'expo-status-bar';
-import { StyleSheet } from 'react-native';
+import { Platform, StyleSheet, ViewStyle } from 'react-native';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
+import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
+
+import { ThemeProvider, useAppTheme } from '../contexts/ThemeContext';
 
 export default function RootLayout() {
-  const bgColor = '#cbe7e6c3'; // Définis ta couleur ici une seule fois
+  const webStyle: ViewStyle =
+    Platform.OS === 'web'
+      ? {
+          height: '100dvh' as unknown as number,
+          width: '100%',
+          display: 'flex',
+          flexDirection: 'column',
+          overflow: 'visible',
+        }
+      : {};
 
   return (
-    <SafeAreaProvider>
-      <StatusBar style="light" backgroundColor="black" translucent={false} />
-      
-      <SafeAreaView style={[styles.container, { backgroundColor: bgColor }]} edges={['top', 'bottom']}>
+    <GestureHandlerRootView style={styles.flex}>
+      <SafeAreaProvider>
+        <ThemeProvider>
+          <ThemedRootShell webStyle={webStyle} />
+        </ThemeProvider>
+      </SafeAreaProvider>
+    </GestureHandlerRootView>
+  );
+}
+
+function ThemedRootShell({ webStyle }: { webStyle: ViewStyle }) {
+  const { surface, isDark } = useAppTheme();
+
+  return (
+    <>
+      <StatusBar style={isDark ? 'light' : 'dark'} />
+      <SafeAreaView
+        style={[styles.container, { backgroundColor: surface }, webStyle]}
+        edges={['top', 'bottom']}
+      >
         <Stack
           screenOptions={{
-            headerStyle: { backgroundColor: '#000dbfff' },
-            headerTintColor: '#fff',
-            headerTitleStyle: { fontWeight: '800', fontSize: 18 },
+            headerShown: false,
             headerShadowVisible: false,
-            
-            
-            contentStyle: { backgroundColor: bgColor }, 
+            contentStyle: { backgroundColor: surface, flex: 1 },
           }}
         >
-          {/* Pas de header */}
-          <Stack.Screen name="(tabs)/index" options={{ headerShown: false }} /> 
-          <Stack.Screen name="(tabs)/login" options={{ headerShown: false }} />
-          <Stack.Screen name="(tabs)/dashboard" options={{ headerShown: false }} />
-          <Stack.Screen name="(tabs)/reports" options={{ headerShown: false }} />
-          <Stack.Screen name="(tabs)/statistics" options={{ headerShown: false }} />
-          <Stack.Screen name="(tabs)/chat-history" options={{ headerShown: false }} />
-          <Stack.Screen name="chat/[id]" options={{ headerShown: false }} />
+          <Stack.Screen name="(tabs)/index" />
+          <Stack.Screen name="(tabs)/login" />
+          <Stack.Screen name="(tabs)/dashboard" />
+          <Stack.Screen name="(tabs)/reports" />
+          <Stack.Screen name="(tabs)/statistics" />
+          <Stack.Screen name="(tabs)/chat-history" />
+          <Stack.Screen name="chat/[id]" />
         </Stack>
       </SafeAreaView>
-    </SafeAreaProvider>
+    </>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    // Cette couleur ne se verra que si le Stack ne prend pas toute la place
-  },
+  flex: { flex: 1 },
+  container: { flex: 1 },
 });

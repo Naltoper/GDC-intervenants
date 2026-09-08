@@ -1,7 +1,9 @@
+import { useMemo } from "react";
 import { StyleSheet, Text, View } from "react-native";
 
 import { DASHBOARD_TITLE } from "../../constants/dashboard";
-import { Colors } from "../../constants/theme";
+import type { AppColorPalette } from "../../constants/theme";
+import { useAppTheme } from "../../contexts/ThemeContext";
 
 interface DashboardPageTitleProps {
   reportCount: number;
@@ -13,47 +15,54 @@ export const DashboardPageTitle = ({
   reportCount,
   title = DASHBOARD_TITLE,
   subtitle,
-}: DashboardPageTitleProps) => (
-  <View style={styles.card}>
-    <Text style={styles.title}>{title}</Text>
-    <Text style={styles.subtitle}>
-      {subtitle ??
-        `${reportCount} signalement${reportCount === 1 ? "" : "s"} reçu${
-          reportCount === 1 ? "" : "s"
-        }`}
-    </Text>
-  </View>
-);
+}: DashboardPageTitleProps) => {
+  const { colors, surface } = useAppTheme();
+  const styles = useMemo(() => createStyles(colors, surface), [colors, surface]);
 
-const styles = StyleSheet.create({
-  card: {
-    backgroundColor: Colors.light.surface,
-    borderRadius: 18,
-    borderWidth: 1,
-    borderColor: Colors.light.border,
-    paddingVertical: 18,
-    paddingHorizontal: 20,
-    marginBottom: 16,
-    alignItems: "center",
-    justifyContent: "center",
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.06,
-    shadowRadius: 10,
-    elevation: 2,
-  },
-  title: {
-    fontSize: 24,
-    fontWeight: "800",
-    color: Colors.light.primary,
-    letterSpacing: -0.3,
-    textAlign: "center",
-    marginBottom: 6,
-  },
-  subtitle: {
-    fontSize: 14,
-    fontWeight: "500",
-    color: Colors.light.textMuted,
-    textAlign: "center",
-  },
-});
+  return (
+    <View style={styles.card}>
+      <Text style={styles.title}>{title}</Text>
+      <Text style={styles.subtitle}>
+        {subtitle ??
+          `${reportCount} signalement${reportCount === 1 ? "" : "s"} reçu${
+            reportCount === 1 ? "" : "s"
+          }`}
+      </Text>
+    </View>
+  );
+};
+
+function createStyles(colors: AppColorPalette, surface: string) {
+  return StyleSheet.create({
+    card: {
+      backgroundColor: surface,
+      borderRadius: 20,
+      borderWidth: 1,
+      borderColor: colors.border,
+      paddingVertical: 18,
+      paddingHorizontal: 20,
+      marginBottom: 16,
+      alignItems: "center",
+      justifyContent: "center",
+      shadowColor: "#000",
+      shadowOffset: { width: 0, height: 4 },
+      shadowOpacity: 0.06,
+      shadowRadius: 10,
+      elevation: 2,
+    },
+    title: {
+      fontSize: 24,
+      fontWeight: "800",
+      color: colors.accent,
+      letterSpacing: -0.3,
+      textAlign: "center",
+      marginBottom: 6,
+    },
+    subtitle: {
+      fontSize: 14,
+      fontWeight: "500",
+      color: colors.textMuted,
+      textAlign: "center",
+    },
+  });
+}

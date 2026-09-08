@@ -1,6 +1,6 @@
 import { Platform } from "react-native";
 
-import { APP_COLORS, Colors } from "./theme";
+import { Colors } from "./theme";
 
 export const DASHBOARD_HEADER = {
   /** Compact sticky bar height (safe area already handled by root layout). */
@@ -30,34 +30,36 @@ export type DashboardStatusCardConfig = {
   text: string;
 };
 
+const palette = Colors.light;
+
 export const DASHBOARD_STATUS_CARDS: DashboardStatusCardConfig[] = [
   {
     key: "Tous",
     label: "Tous",
-    accent: APP_COLORS.primary,
-    background: "#E8F4FD",
-    text: Colors.light.primary,
+    accent: palette.primaryLight,
+    background: palette.borderSubtle,
+    text: palette.accent,
   },
   {
     key: "Non traité",
     label: "Non traités",
-    accent: Colors.light.status.error,
-    background: Colors.light.status.errorBg,
-    text: Colors.light.status.errorText,
+    accent: palette.status.error,
+    background: palette.status.errorBg,
+    text: palette.status.errorText,
   },
   {
     key: "En cours",
     label: "En cours",
-    accent: Colors.light.status.warning,
-    background: Colors.light.status.warningBg,
-    text: Colors.light.status.warningText,
+    accent: palette.status.warning,
+    background: palette.status.warningBg,
+    text: palette.status.warningText,
   },
   {
     key: "Résolu",
     label: "Résolus",
-    accent: Colors.light.status.success,
-    background: Colors.light.status.successBg,
-    text: Colors.light.status.successText,
+    accent: palette.status.success,
+    background: palette.status.successBg,
+    text: palette.status.successText,
   },
 ];
 

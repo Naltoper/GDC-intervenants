@@ -1,22 +1,21 @@
 import { useRouter } from "expo-router";
 import { MessageSquareText, Shield, User } from "lucide-react-native";
+import { useMemo } from "react";
 import {
   ActivityIndicator,
-  ImageBackground,
+  FlatList,
   Pressable,
-  RefreshControl,
   StyleSheet,
   Text,
   View,
 } from "react-native";
-import Animated from "react-native-reanimated";
 
-import { DashboardHeader } from "../../components/dashboard/DashboardHeader";
-import { DashboardPageTitle } from "../../components/dashboard/DashboardPageTitle";
-import { DASHBOARD_HEADER } from "../../constants/dashboard";
-import { Colors } from "../../constants/theme";
-import { useCollapsingHeader } from "../../hooks/useCollapsingHeader";
+import { PageHeader } from "../../components/headers/PageHeader";
+import { ScreenShell } from "../../components/layout/ScreenShell";
+import type { AppColorPalette } from "../../constants/theme";
+import { useAppTheme } from "../../contexts/ThemeContext";
 import { ChatHistoryItem, useChatHistory } from "../../hooks/useChatHistory";
+import { usePullToRefresh } from "../../hooks/usePullToRefresh";
 
 const formatDate = (iso: string) => {
   const date = new Date(iso);
@@ -29,9 +28,15 @@ const formatDate = (iso: string) => {
 
 export default function ChatHistoryScreen() {
   const router = useRouter();
+  const { colors, surface } = useAppTheme();
+  const styles = useMemo(() => createStyles(colors, surface), [colors, surface]);
   const { items, loading, refreshing, refresh } = useChatHistory();
-  const { scrollHandler, stickyBarStyle, stickyTitleStyle } =
-    useCollapsingHeader();
+
+  const pullRefresh = usePullToRefresh({
+    refreshing,
+    onRefresh: refresh,
+    tintColor: colors.primaryLight,
+  });
 
   const renderItem = ({ item }: { item: ChatHistoryItem }) => {
     const author = item.report.is_anonyme
@@ -44,7 +49,7 @@ export default function ChatHistoryScreen() {
         onPress={() =>
           router.push({
             pathname: "/chat/[id]",
-            params: { id: item.report.id, role: "admin" },
+            params: { id: item.report.id, role: "admin", from: "chat-history" },
           })
         }
       >
@@ -52,9 +57,9 @@ export default function ChatHistoryScreen() {
           <View style={styles.authorBlock}>
             <View style={styles.avatar}>
               {item.report.is_anonyme ? (
-                <Shield size={16} color={Colors.light.textMuted} />
+                <Shield size={16} color={colors.textMuted} />
               ) : (
-                <User size={16} color={Colors.light.primary} />
+                <User size={16} color={colors.accent} />
               )}
             </View>
             <Text style={styles.authorName} numberOfLines={1}>
@@ -69,7 +74,7 @@ export default function ChatHistoryScreen() {
         </Text>
 
         <View style={styles.footer}>
-          <MessageSquareText size={14} color={Colors.light.secondary} />
+          <MessageSquareText size={14} color={colors.secondary} />
           <Text style={styles.footerText}>
             {item.messageCount} message{item.messageCount === 1 ? "" : "s"}
           </Text>
@@ -79,161 +84,131 @@ export default function ChatHistoryScreen() {
   };
 
   return (
-    <View style={styles.container}>
-      <ImageBackground
-        source={require("../../assets/images/lyceeBgBlur.png")}
-        style={styles.screenBackground}
-        imageStyle={styles.screenBackgroundImage}
-        resizeMode="cover"
-      >
-        <DashboardHeader
-          onBack={() => router.replace("/(tabs)/dashboard")}
-          stickyBarStyle={stickyBarStyle}
-          stickyTitleStyle={stickyTitleStyle}
-          stickyTitle="Historique des chats"
-        />
+    <ScreenShell>
+      <PageHeader
+        title="Historique des chats"
+        subtitle={`${items.length} conversation${items.length === 1 ? "" : "s"}`}
+        onBack={() => router.replace("/(tabs)/dashboard")}
+      />
 
-        {loading && !refreshing ? (
-          <ActivityIndicator
-            size="large"
-            color={Colors.light.primary}
-            style={styles.loader}
-          />
-        ) : (
-          <Animated.FlatList
-            data={items}
-            keyExtractor={(item) => item.report.id}
-            onScroll={scrollHandler}
-            scrollEventThrottle={16}
-            contentContainerStyle={styles.listContent}
-            ListHeaderComponent={
-              <DashboardPageTitle
-                reportCount={items.length}
-                title="Historique des chats"
-                subtitle={`${items.length} conversation${
-                  items.length === 1 ? "" : "s"
-                }`}
-              />
-            }
-            ListEmptyComponent={
-              <View style={styles.empty}>
-                <Text style={styles.emptyTitle}>Aucun chat pour le moment</Text>
-                <Text style={styles.emptyText}>
-                  Les conversations avec les élèves apparaîtront ici.
-                </Text>
-              </View>
-            }
-            refreshControl={
-              <RefreshControl
-                refreshing={refreshing}
-                onRefresh={refresh}
-                progressViewOffset={DASHBOARD_HEADER.STICKY_HEIGHT}
-              />
-            }
-            renderItem={renderItem}
-          />
-        )}
-      </ImageBackground>
-    </View>
+      {loading && !refreshing ? (
+        <ActivityIndicator
+          size="large"
+          color={colors.primaryLight}
+          style={styles.loader}
+        />
+      ) : (
+        <FlatList
+          data={items}
+          keyExtractor={(item) => item.report.id}
+          contentContainerStyle={styles.listContent}
+          {...pullRefresh}
+          ListEmptyComponent={
+            <View style={styles.empty}>
+              <Text style={styles.emptyTitle}>Aucun chat pour le moment</Text>
+              <Text style={styles.emptyText}>
+                Les conversations avec les élèves apparaîtront ici.
+              </Text>
+            </View>
+          }
+          renderItem={renderItem}
+        />
+      )}
+    </ScreenShell>
   );
 }
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: "#b6d9ff",
-  },
-  screenBackground: {
-    flex: 1,
-    width: "100%",
-    height: "100%",
-  },
-  screenBackgroundImage: {
-    opacity: 0.5,
-  },
-  loader: {
-    marginTop: DASHBOARD_HEADER.STICKY_HEIGHT + 40,
-  },
-  listContent: {
-    paddingTop: DASHBOARD_HEADER.STICKY_HEIGHT + 8,
-    paddingBottom: 24,
-    paddingHorizontal: 20,
-    flexGrow: 1,
-  },
-  card: {
-    backgroundColor: Colors.light.surface,
-    borderRadius: 16,
-    borderWidth: 1,
-    borderColor: Colors.light.border,
-    padding: 16,
-    marginBottom: 12,
-  },
-  cardPressed: {
-    opacity: 0.9,
-  },
-  cardHeader: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    marginBottom: 10,
-    gap: 10,
-  },
-  authorBlock: {
-    flex: 1,
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 8,
-    minWidth: 0,
-  },
-  avatar: {
-    width: 32,
-    height: 32,
-    borderRadius: 10,
-    backgroundColor: "#E8F4FD",
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  authorName: {
-    flex: 1,
-    fontSize: 15,
-    fontWeight: "700",
-    color: Colors.light.primary,
-  },
-  date: {
-    fontSize: 12,
-    color: Colors.light.textMuted,
-    fontWeight: "500",
-  },
-  preview: {
-    fontSize: 14,
-    lineHeight: 20,
-    color: Colors.light.text,
-    marginBottom: 12,
-  },
-  footer: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 6,
-  },
-  footerText: {
-    fontSize: 12,
-    fontWeight: "600",
-    color: Colors.light.textMuted,
-  },
-  empty: {
-    marginTop: 40,
-    alignItems: "center",
-    paddingHorizontal: 20,
-  },
-  emptyTitle: {
-    fontSize: 16,
-    fontWeight: "800",
-    color: Colors.light.primary,
-    marginBottom: 6,
-  },
-  emptyText: {
-    fontSize: 14,
-    color: Colors.light.textMuted,
-    textAlign: "center",
-  },
-});
+function createStyles(colors: AppColorPalette, surface: string) {
+  return StyleSheet.create({
+    loader: {
+      marginTop: 48,
+    },
+    listContent: {
+      paddingTop: 12,
+      paddingBottom: 24,
+      paddingHorizontal: 20,
+      flexGrow: 1,
+    },
+    card: {
+      backgroundColor: surface,
+      borderRadius: 20,
+      borderWidth: 1,
+      borderColor: colors.border,
+      padding: 16,
+      marginBottom: 12,
+      shadowColor: "#000",
+      shadowOffset: { width: 0, height: 4 },
+      shadowOpacity: 0.05,
+      shadowRadius: 10,
+      elevation: 3,
+    },
+    cardPressed: {
+      opacity: 0.9,
+    },
+    cardHeader: {
+      flexDirection: "row",
+      alignItems: "center",
+      justifyContent: "space-between",
+      marginBottom: 10,
+      gap: 10,
+    },
+    authorBlock: {
+      flex: 1,
+      flexDirection: "row",
+      alignItems: "center",
+      gap: 8,
+      minWidth: 0,
+    },
+    avatar: {
+      width: 32,
+      height: 32,
+      borderRadius: 10,
+      backgroundColor: colors.borderSubtle,
+      alignItems: "center",
+      justifyContent: "center",
+    },
+    authorName: {
+      flex: 1,
+      fontSize: 15,
+      fontWeight: "700",
+      color: colors.accent,
+    },
+    date: {
+      fontSize: 12,
+      color: colors.textMuted,
+      fontWeight: "500",
+    },
+    preview: {
+      fontSize: 14,
+      lineHeight: 20,
+      color: colors.text,
+      marginBottom: 12,
+    },
+    footer: {
+      flexDirection: "row",
+      alignItems: "center",
+      gap: 6,
+    },
+    footerText: {
+      fontSize: 12,
+      fontWeight: "600",
+      color: colors.textMuted,
+    },
+    empty: {
+      marginTop: 40,
+      alignItems: "center",
+      paddingHorizontal: 20,
+    },
+    emptyTitle: {
+      fontSize: 16,
+      fontWeight: "800",
+      color: colors.accent,
+      marginBottom: 6,
+    },
+    emptyText: {
+      fontSize: 14,
+      color: colors.textMuted,
+      textAlign: "center",
+    },
+  });
+}

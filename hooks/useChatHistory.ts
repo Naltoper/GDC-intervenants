@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState } from "react";
 
 import { supabase } from "../lib/supabase";
 import { Report } from "../types/report";
+import { decodeChatContent } from "../utils/chatMessage";
 
 export type ChatHistoryItem = {
   report: Report;
@@ -40,8 +41,12 @@ export const useChatHistory = () => {
       const reportId = message.report_id as string;
       const existing = byReport.get(reportId);
       if (!existing) {
+        const decoded = decodeChatContent(message.content ?? "");
+        const preview =
+          decoded.text.trim() ||
+          (decoded.imageUrl ? "📷 Image" : "Conversation ouverte");
         byReport.set(reportId, {
-          lastMessage: message.content ?? "",
+          lastMessage: preview,
           lastMessageAt: message.created_at,
           messageCount: 1,
         });

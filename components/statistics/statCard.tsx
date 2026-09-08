@@ -1,7 +1,8 @@
-import React from "react";
+import React, { useMemo } from "react";
 import { StyleSheet, Text, View } from "react-native";
 
-import { APP_COLORS } from "../../constants/theme";
+import type { AppColorPalette } from "../../constants/theme";
+import { useAppTheme } from "../../contexts/ThemeContext";
 
 type StatCardProps = {
   title: string;
@@ -18,6 +19,9 @@ export function StatCard({
   color,
   icon,
 }: StatCardProps) {
+  const { colors, surface } = useAppTheme();
+  const styles = useMemo(() => createStyles(colors, surface), [colors, surface]);
+
   return (
     <View style={styles.statCard}>
       <View style={styles.statIcon}>{icon}</View>
@@ -25,44 +29,45 @@ export function StatCard({
       <Text style={styles.statValue}>{value}</Text>
       <Text style={styles.statTitle}>{title}</Text>
 
-      <Text style={[styles.statPercentage, { color }]}>
-        {percentage}%
-      </Text>
+      <Text style={[styles.statPercentage, { color }]}>{percentage}%</Text>
     </View>
   );
 }
 
-const styles = StyleSheet.create({
-  statCard: {
-    flex: 1,
-    backgroundColor: APP_COLORS.surface,
-    borderRadius: 18,
-    padding: 14,
-    alignItems: "center",
-    borderWidth: 1,
-    borderColor: APP_COLORS.border,
-  },
-
-  statIcon: {
-    marginBottom: 8,
-  },
-
-  statValue: {
-    fontSize: 24,
-    fontWeight: "900",
-    color: APP_COLORS.text,
-  },
-
-  statTitle: {
-    fontSize: 12,
-    color: APP_COLORS.textMuted,
-    textAlign: "center",
-    marginTop: 2,
-  },
-
-  statPercentage: {
-    fontSize: 13,
-    fontWeight: "800",
-    marginTop: 6,
-  },
-});
+function createStyles(colors: AppColorPalette, surface: string) {
+  return StyleSheet.create({
+    statCard: {
+      flex: 1,
+      backgroundColor: surface,
+      borderRadius: 20,
+      padding: 14,
+      alignItems: "center",
+      borderWidth: 1,
+      borderColor: colors.border,
+      shadowColor: "#000",
+      shadowOffset: { width: 0, height: 4 },
+      shadowOpacity: 0.05,
+      shadowRadius: 10,
+      elevation: 2,
+    },
+    statIcon: {
+      marginBottom: 8,
+    },
+    statValue: {
+      fontSize: 24,
+      fontWeight: "900",
+      color: colors.text,
+    },
+    statTitle: {
+      fontSize: 12,
+      color: colors.textMuted,
+      textAlign: "center",
+      marginTop: 2,
+    },
+    statPercentage: {
+      fontSize: 13,
+      fontWeight: "800",
+      marginTop: 6,
+    },
+  });
+}

@@ -1,7 +1,8 @@
-import React from "react";
+import React, { useMemo } from "react";
 import { StyleSheet, Text, View } from "react-native";
 
-import { APP_COLORS } from "../../constants/theme";
+import type { AppColorPalette } from "../../constants/theme";
+import { useAppTheme } from "../../contexts/ThemeContext";
 import { ProgressRow } from "./ProgressRow";
 
 type StatEntry = [string, number];
@@ -19,6 +20,9 @@ export function StatisticsSection({
   color,
   getPercentage,
 }: StatisticsSectionProps) {
+  const { colors, surface } = useAppTheme();
+  const styles = useMemo(() => createStyles(colors, surface), [colors, surface]);
+
   return (
     <View style={styles.listCard}>
       <Text style={styles.sectionTitle}>{title}</Text>
@@ -40,27 +44,32 @@ export function StatisticsSection({
   );
 }
 
-const styles = StyleSheet.create({
-  listCard: {
-    backgroundColor: APP_COLORS.surface,
-    borderRadius: 22,
-    padding: 18,
-    borderWidth: 1,
-    borderColor: APP_COLORS.border,
-    marginBottom: 18,
-  },
-
-  sectionTitle: {
-    fontSize: 18,
-    fontWeight: "900",
-    color: APP_COLORS.text,
-    marginBottom: 16,
-  },
-
-  emptyText: {
-    color: APP_COLORS.textMuted,
-    fontSize: 14,
-    textAlign: "center",
-    paddingVertical: 10,
-  },
-});
+function createStyles(colors: AppColorPalette, surface: string) {
+  return StyleSheet.create({
+    listCard: {
+      backgroundColor: surface,
+      borderRadius: 20,
+      padding: 18,
+      borderWidth: 1,
+      borderColor: colors.border,
+      marginBottom: 18,
+      shadowColor: "#000",
+      shadowOffset: { width: 0, height: 4 },
+      shadowOpacity: 0.05,
+      shadowRadius: 10,
+      elevation: 2,
+    },
+    sectionTitle: {
+      fontSize: 18,
+      fontWeight: "900",
+      color: colors.text,
+      marginBottom: 16,
+    },
+    emptyText: {
+      color: colors.textMuted,
+      fontSize: 14,
+      textAlign: "center",
+      paddingVertical: 10,
+    },
+  });
+}

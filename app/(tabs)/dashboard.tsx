@@ -1,5 +1,7 @@
+import { useFocusEffect } from "@react-navigation/native";
 import { MessageSquareText, Users } from "lucide-react-native";
 import { useRouter } from "expo-router";
+import { useCallback } from "react";
 import {
   ActivityIndicator,
   RefreshControl,
@@ -13,12 +15,20 @@ import { PageHeader } from "../../components/headers/PageHeader";
 import { ScreenShell } from "../../components/layout/ScreenShell";
 import { HeaderOverflowMenu } from "../../components/navigation/HeaderOverflowMenu";
 import { useAppTheme } from "../../contexts/ThemeContext";
+import { useModerationPendingCount } from "../../hooks/community/useModerationPendingCount";
 import { useDashboard } from "../../hooks/useDashboard";
 
 export default function DashboardScreen() {
   const router = useRouter();
   const { colors } = useAppTheme();
   const dashboard = useDashboard();
+  const moderationPending = useModerationPendingCount();
+
+  useFocusEffect(
+    useCallback(() => {
+      void moderationPending.refresh();
+    }, [moderationPending.refresh]),
+  );
 
   const openFilter = (filterKey: string) => {
     router.push({
@@ -47,7 +57,10 @@ export default function DashboardScreen() {
           refreshControl={
             <RefreshControl
               refreshing={dashboard.refreshing}
-              onRefresh={dashboard.fetchReports}
+              onRefresh={() => {
+                void dashboard.fetchReports();
+                void moderationPending.refresh();
+              }}
               tintColor={colors.primaryLight}
               colors={[colors.primaryLight]}
             />
@@ -71,10 +84,17 @@ export default function DashboardScreen() {
           />
           <DashboardLinkCard
             title="Modération de la Communauté"
-            subtitle="Surveiller et modérer le forum élèves"
+            subtitle={
+              moderationPending.pendingCount > 0
+                ? `${moderationPending.pendingCount} élément${
+                    moderationPending.pendingCount > 1 ? "s" : ""
+                  } en attente`
+                : "Surveiller et modérer le forum élèves"
+            }
             icon={<Users size={22} color={colors.accent} strokeWidth={2.4} />}
             onPress={() => router.push("/(tabs)/moderation")}
             accessibilityLabel="Modération de la Communauté"
+            badgeCount={moderationPending.pendingCount}
           />
         </ScrollView>
       )}

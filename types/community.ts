@@ -1,3 +1,5 @@
+export type ModerationStatus = 'en_attente' | 'publie' | 'refuse';
+
 export type CommunityPost = {
   id: string;
   created_at: string;
@@ -6,6 +8,7 @@ export type CommunityPost = {
   is_anonyme: boolean;
   author_name: string | null;
   user_token: string;
+  moderation_status?: ModerationStatus | null;
 };
 
 export type CommunityComment = {
@@ -16,6 +19,7 @@ export type CommunityComment = {
   is_anonyme: boolean;
   author_name: string | null;
   user_token: string;
+  moderation_status?: ModerationStatus | null;
 };
 
 export type CommunityVote = {
@@ -33,6 +37,8 @@ export type VoteRow = {
 
 export type CommentRow = {
   post_id: string;
+  moderation_status?: ModerationStatus | null;
+  user_token?: string;
 };
 
 export type SelectedImage = {

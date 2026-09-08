@@ -1,13 +1,14 @@
 import { useCallback, useEffect, useState } from 'react';
 
 import { supabase } from '../../lib/supabase';
-import type { CommunityComment } from '../../types/community';
+import type { CommunityComment, ModerationStatus } from '../../types/community';
 import { notify } from '../../utils/notify';
 
-/** Commentaires d’un sujet — suppression admin (sans filtre user_token). */
+/** Commentaires d’un sujet — actions admin (statut + suppression). */
 export function useModerationComments(postId: string | null) {
   const [comments, setComments] = useState<CommunityComment[]>([]);
   const [loading, setLoading] = useState(Boolean(postId));
+  const [updatingId, setUpdatingId] = useState<string | null>(null);
 
   const fetchComments = useCallback(async () => {
     if (!postId) {
@@ -37,6 +38,34 @@ export function useModerationComments(postId: string | null) {
     void fetchComments();
   }, [fetchComments]);
 
+  const setCommentStatus = useCallback(
+    async (commentId: string, status: ModerationStatus) => {
+      setUpdatingId(commentId);
+      const { error } = await supabase
+        .from('community_comments')
+        .update({ moderation_status: status })
+        .eq('id', commentId);
+
+      setUpdatingId(null);
+
+      if (error) {
+        console.error('[moderation] update comment status', error.message);
+        notify('Erreur', 'Impossible de mettre à jour le statut du commentaire.');
+        return false;
+      }
+
+      setComments((current) =>
+        current.map((comment) =>
+          comment.id === commentId
+            ? { ...comment, moderation_status: status }
+            : comment,
+        ),
+      );
+      return true;
+    },
+    [],
+  );
+
   const deleteComment = useCallback(
     async (commentId: string) => {
       const { error } = await supabase
@@ -59,7 +88,9 @@ export function useModerationComments(postId: string | null) {
   return {
     comments,
     loading,
+    updatingId,
     fetchComments,
+    setCommentStatus,
     deleteComment,
   };
 }

@@ -9,6 +9,8 @@ type DashboardLinkCardProps = {
   icon: ReactNode;
   onPress: () => void;
   accessibilityLabel?: string;
+  /** Badge rouge (ex. éléments en attente de modération). */
+  badgeCount?: number;
 };
 
 /** Carte d’action dashboard (même langage visuel que les tuiles Élève). */
@@ -18,8 +20,10 @@ export function DashboardLinkCard({
   icon,
   onPress,
   accessibilityLabel,
+  badgeCount = 0,
 }: DashboardLinkCardProps) {
   const { colors, surface } = useAppTheme();
+  const showBadge = badgeCount > 0;
 
   return (
     <Pressable
@@ -33,7 +37,11 @@ export function DashboardLinkCard({
         pressed && styles.pressed,
       ]}
       accessibilityRole="button"
-      accessibilityLabel={accessibilityLabel ?? title}
+      accessibilityLabel={
+        showBadge
+          ? `${accessibilityLabel ?? title}, ${badgeCount} en attente`
+          : accessibilityLabel ?? title
+      }
     >
       <View
         style={[
@@ -45,6 +53,13 @@ export function DashboardLinkCard({
         ]}
       >
         {icon}
+        {showBadge ? (
+          <View style={[styles.badge, { backgroundColor: colors.status.error }]}>
+            <Text style={styles.badgeText}>
+              {badgeCount > 99 ? "99+" : String(badgeCount)}
+            </Text>
+          </View>
+        ) : null}
       </View>
       <View style={styles.textWrap}>
         <Text style={[styles.title, { color: colors.text }]}>{title}</Text>
@@ -83,6 +98,25 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     borderWidth: 1,
+    position: "relative",
+  },
+  badge: {
+    position: "absolute",
+    top: -6,
+    right: -6,
+    minWidth: 20,
+    height: 20,
+    borderRadius: 10,
+    paddingHorizontal: 5,
+    alignItems: "center",
+    justifyContent: "center",
+    borderWidth: 2,
+    borderColor: "#ffffff",
+  },
+  badgeText: {
+    color: "#ffffff",
+    fontSize: 10,
+    fontWeight: "800",
   },
   textWrap: {
     flex: 1,

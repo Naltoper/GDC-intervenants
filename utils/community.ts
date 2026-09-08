@@ -1,6 +1,7 @@
 import type {
     CommentRow,
     CommunityPost,
+    ModerationStatus,
     VoteRow,
 } from '../types/community';
 
@@ -10,10 +11,49 @@ export const MAX_COMMUNITY_IMAGE_SIZE = 2 * 1024 * 1024; // 2 Mo
 
 export const COMMUNITY_GRADIENT_COLORS = ['#48a4f4', '#10ac56'] as const;
 
+export const MODERATION_STATUSES = [
+  'en_attente',
+  'publie',
+  'refuse',
+] as const;
+
 /** Dégradé d'action thème-aware (boutons communauté / chat). */
 export function getActionGradient(primary: string, success: string): [string, string] {
   return [primary, success];
 }
+
+export const normalizeModerationStatus = (
+  status: ModerationStatus | string | null | undefined,
+): ModerationStatus => {
+  if (status === 'en_attente' || status === 'publie' || status === 'refuse') {
+    return status;
+  }
+  return 'publie';
+};
+
+export const getModerationStatusLabel = (
+  status: ModerationStatus | string | null | undefined,
+) => {
+  switch (normalizeModerationStatus(status)) {
+    case 'en_attente':
+      return 'En attente';
+    case 'refuse':
+      return 'Refusé';
+    default:
+      return 'Publié';
+  }
+};
+
+/** Visible dans le feed élève : publié, ou en attente/refusé si auteur. */
+export const isCommunityItemVisibleToViewer = (
+  status: ModerationStatus | string | null | undefined,
+  authorToken: string,
+  viewerToken: string | null,
+) => {
+  const normalized = normalizeModerationStatus(status);
+  if (normalized === 'publie') return true;
+  return Boolean(viewerToken && viewerToken === authorToken);
+};
 
 export const formatCommunityDateTime = (date: string) => {
   return new Date(date).toLocaleDateString('fr-FR', {

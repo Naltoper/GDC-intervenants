@@ -4,11 +4,13 @@ import { supabase } from '../../lib/supabase';
 import type {
   CommentRow,
   CommunityPost,
+  ModerationStatus,
   VoteRow,
 } from '../../types/community';
 import {
   buildCommentCounts,
   buildVoteScores,
+  normalizeModerationStatus,
   sortPostsByScoreAndDate,
 } from '../../utils/community';
 import { notify } from '../../utils/notify';
@@ -17,13 +19,14 @@ type FetchPostsOptions = {
   resort?: boolean;
 };
 
-/** Feed communauté pour la modération intervenants (lecture + suppression admin). */
+/** Feed communauté pour la modération intervenants. */
 export function useModerationPosts() {
   const [posts, setPosts] = useState<CommunityPost[]>([]);
   const [votes, setVotes] = useState<Record<string, number>>({});
   const [commentCounts, setCommentCounts] = useState<Record<string, number>>({});
   const [orderedIds, setOrderedIds] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
+  const [updatingId, setUpdatingId] = useState<string | null>(null);
 
   const fetchPosts = useCallback(async (options?: FetchPostsOptions) => {
     const resort = options?.resort !== false;
@@ -98,9 +101,34 @@ export function useModerationPosts() {
     void fetchPosts({ resort: true });
   }, [fetchPosts]);
 
+  const setPostStatus = useCallback(
+    async (postId: string, status: ModerationStatus) => {
+      setUpdatingId(postId);
+      const { error } = await supabase
+        .from('community_posts')
+        .update({ moderation_status: status })
+        .eq('id', postId);
+
+      setUpdatingId(null);
+
+      if (error) {
+        console.error('[moderation] update post status', error.message);
+        notify('Erreur', 'Impossible de mettre à jour le statut du sujet.');
+        return false;
+      }
+
+      setPosts((current) =>
+        current.map((post) =>
+          post.id === postId ? { ...post, moderation_status: status } : post,
+        ),
+      );
+      return true;
+    },
+    [],
+  );
+
   const deletePost = useCallback(
     async (postId: string) => {
-      // Nettoyage associé (votes + commentaires) puis le sujet.
       const { error: commentsError } = await supabase
         .from('community_comments')
         .delete()
@@ -148,13 +176,24 @@ export function useModerationPosts() {
     return [...newcomers, ...ordered];
   }, [posts, votes, orderedIds]);
 
+  const pendingCount = useMemo(
+    () =>
+      posts.filter(
+        (post) => normalizeModerationStatus(post.moderation_status) === 'en_attente',
+      ).length,
+    [posts],
+  );
+
   return {
     posts,
     sortedPosts,
     votes,
     commentCounts,
     loading,
+    updatingId,
+    pendingCount,
     fetchPosts,
+    setPostStatus,
     deletePost,
   };
 }

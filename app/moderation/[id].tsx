@@ -10,6 +10,7 @@ import {
   View,
 } from 'react-native';
 
+import { ModerationActionButtons } from '../../components/community/ModerationActionButtons';
 import { ModerationCommentsList } from '../../components/community/ModerationCommentsList';
 import { PageHeader } from '../../components/headers/PageHeader';
 import { DeleteConfirmModal } from '../../components/modals/DeleteConfirmModal';
@@ -19,12 +20,14 @@ import { useAppTheme } from '../../contexts/ThemeContext';
 import { useModerationComments } from '../../hooks/community/useModerationComments';
 import { usePullToRefresh } from '../../hooks/usePullToRefresh';
 import { supabase } from '../../lib/supabase';
-import type { CommunityPost } from '../../types/community';
+import type { CommunityPost, ModerationStatus } from '../../types/community';
 import {
   formatCommunityDateTime,
   getCommunityAuthorRole,
   getCommunityDisplayName,
+  getModerationStatusLabel,
   getPostTitleAndBody,
+  normalizeModerationStatus,
 } from '../../utils/community';
 import { notify } from '../../utils/notify';
 
@@ -48,6 +51,7 @@ export default function ModerationPostDetailsScreen() {
   const [lightboxUri, setLightboxUri] = useState<string | null>(null);
   const [pendingDelete, setPendingDelete] = useState<PendingDelete>(null);
   const [deleting, setDeleting] = useState(false);
+  const [updatingPost, setUpdatingPost] = useState(false);
 
   const fetchPost = useCallback(async () => {
     if (!postId) return;
@@ -89,6 +93,26 @@ export default function ModerationPostDetailsScreen() {
     tintColor: colors.primaryLight,
   });
 
+  const setPostStatus = async (status: ModerationStatus) => {
+    if (!post || updatingPost) return;
+    setUpdatingPost(true);
+    const { error } = await supabase
+      .from('community_posts')
+      .update({ moderation_status: status })
+      .eq('id', post.id);
+    setUpdatingPost(false);
+
+    if (error) {
+      console.error('[moderation] update post', error.message);
+      notify('Erreur', 'Impossible de mettre à jour le statut du sujet.');
+      return;
+    }
+
+    setPost((current) =>
+      current ? { ...current, moderation_status: status } : current,
+    );
+  };
+
   const handleConfirmDelete = async () => {
     if (!pendingDelete || deleting) return;
     setDeleting(true);
@@ -100,7 +124,6 @@ export default function ModerationPostDetailsScreen() {
       return;
     }
 
-    // Suppression du sujet + contenu associé
     const { error: commentsError } = await supabase
       .from('community_comments')
       .delete()
@@ -135,6 +158,9 @@ export default function ModerationPostDetailsScreen() {
   };
 
   const { title, body } = getPostTitleAndBody(post?.content || '');
+  const status = post
+    ? normalizeModerationStatus(post.moderation_status)
+    : 'publie';
 
   return (
     <View style={styles.safeArea}>
@@ -172,6 +198,16 @@ export default function ModerationPostDetailsScreen() {
 
               <View style={styles.postCopy}>
                 <Text style={styles.title}>{title}</Text>
+                <Text
+                  style={[
+                    styles.statusBadge,
+                    status === 'en_attente' && styles.waitingBadge,
+                    status === 'refuse' && styles.refusedBadge,
+                    status === 'publie' && styles.publishedBadge,
+                  ]}
+                >
+                  {getModerationStatusLabel(status)}
+                </Text>
                 <Text style={styles.meta}>
                   {getCommunityDisplayName(post.is_anonyme, post.author_name)} ·{' '}
                   {getCommunityAuthorRole(post.is_anonyme)} ·{' '}
@@ -196,6 +232,15 @@ export default function ModerationPostDetailsScreen() {
                 />
               </TouchableOpacity>
             ) : null}
+
+            <View style={styles.postActions}>
+              <ModerationActionButtons
+                status={status}
+                busy={updatingPost}
+                onApprove={() => void setPostStatus('publie')}
+                onRefuse={() => void setPostStatus('refuse')}
+              />
+            </View>
           </View>
         ) : (
           <Text style={styles.loadingText}>Chargement du sujet…</Text>
@@ -208,9 +253,14 @@ export default function ModerationPostDetailsScreen() {
 
         <ModerationCommentsList
           comments={commentsState.comments}
+          updatingId={commentsState.updatingId}
+          nested
           onDelete={(commentId) =>
             setPendingDelete({ type: 'comment', id: commentId })
           }
+          onSetStatus={(commentId, nextStatus) => {
+            void commentsState.setCommentStatus(commentId, nextStatus);
+          }}
         />
       </ScrollView>
 
@@ -294,6 +344,28 @@ function createStyles(colors: AppColorPalette, surface: string) {
       color: colors.text,
       lineHeight: 24,
     },
+    statusBadge: {
+      alignSelf: 'flex-start',
+      marginTop: 8,
+      fontSize: 11,
+      fontWeight: '700',
+      paddingHorizontal: 8,
+      paddingVertical: 3,
+      borderRadius: 8,
+      overflow: 'hidden',
+    },
+    waitingBadge: {
+      color: '#b45309',
+      backgroundColor: '#fef3c7',
+    },
+    refusedBadge: {
+      color: '#b91c1c',
+      backgroundColor: '#fee2e2',
+    },
+    publishedBadge: {
+      color: '#047857',
+      backgroundColor: '#d1fae5',
+    },
     meta: {
       marginTop: 6,
       fontSize: 12,
@@ -312,6 +384,9 @@ function createStyles(colors: AppColorPalette, surface: string) {
       borderRadius: 12,
       marginTop: 14,
       backgroundColor: colors.border,
+    },
+    postActions: {
+      marginTop: 14,
     },
     commentsHeading: {
       fontSize: 13,

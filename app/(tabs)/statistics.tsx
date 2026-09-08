@@ -2,9 +2,12 @@ import { LinearGradient } from "expo-linear-gradient";
 import { useRouter } from "expo-router";
 import {
   BarChart3,
+  Clock3,
+  MessageSquareText,
   ShieldAlert,
   ShieldCheck,
   Timer,
+  Users,
 } from "lucide-react-native";
 import React, { useMemo } from "react";
 import {
@@ -18,11 +21,13 @@ import {
 
 import { PageHeader } from "../../components/headers/PageHeader";
 import { ScreenShell } from "../../components/layout/ScreenShell";
+import { MetricTile } from "../../components/statistics/MetricTile";
 import { StatCard } from "../../components/statistics/statCard";
 import { StatisticsSection } from "../../components/statistics/StatisticsSection";
 import type { AppColorPalette } from "../../constants/theme";
 import { useAppTheme } from "../../contexts/ThemeContext";
 import { useGetAllReports } from "../../hooks/useGetAllReports";
+import { useModerationStats } from "../../hooks/useModerationStats";
 import { useStatistics } from "../../hooks/useStatistics";
 
 export default function StatisticsScreen() {
@@ -31,6 +36,7 @@ export default function StatisticsScreen() {
   const styles = useMemo(() => createStyles(colors, surface), [colors, surface]);
 
   const { reports, loading, refreshing, fetchReports } = useGetAllReports();
+  const moderation = useModerationStats();
 
   const {
     totalReports,
@@ -39,8 +45,32 @@ export default function StatisticsScreen() {
     resoluCount,
     typesStats,
     urgencesStats,
+    lieuxStats,
+    frequencesStats,
+    victimesStats,
+    anonymatStats,
+    thisWeekCount,
+    thisMonthCount,
+    todayCount,
+    avgOpenAgeDays,
+    openCount,
+    withAttachmentCount,
     getPercentage,
   } = useStatistics(reports);
+
+  const refreshAll = async () => {
+    await Promise.all([
+      fetchReports({ pullToRefresh: true }),
+      moderation.refresh(),
+    ]);
+  };
+
+  const avgWaitLabel =
+    avgOpenAgeDays === null
+      ? "—"
+      : avgOpenAgeDays < 1
+        ? "< 1 j"
+        : `${avgOpenAgeDays} j`;
 
   if (loading && !refreshing) {
     return (
@@ -72,7 +102,7 @@ export default function StatisticsScreen() {
         refreshControl={
           <RefreshControl
             refreshing={refreshing}
-            onRefresh={() => fetchReports({ pullToRefresh: true })}
+            onRefresh={refreshAll}
             tintColor={colors.primaryLight}
             colors={[colors.primaryLight]}
           />
@@ -120,8 +150,41 @@ export default function StatisticsScreen() {
           />
         </View>
 
-        <Text style={styles.sectionTitle}>Types de harcèlement</Text>
+        <Text style={styles.sectionTitle}>Évolution temporelle</Text>
+        <View style={styles.metricsGrid}>
+          <MetricTile
+            label="Aujourd'hui"
+            value={String(todayCount)}
+            hint="nouveaux signalements"
+            accent={colors.accent}
+          />
+          <MetricTile
+            label="Cette semaine"
+            value={String(thisWeekCount)}
+            hint="7 derniers jours"
+            accent={colors.primaryLight}
+          />
+          <MetricTile
+            label="Ce mois"
+            value={String(thisMonthCount)}
+            hint="depuis le 1er"
+            accent={colors.secondary}
+          />
+          <MetricTile
+            label="Attente moyenne"
+            value={avgWaitLabel}
+            hint={
+              openCount > 0
+                ? `${openCount} dossier${openCount > 1 ? "s" : ""} ouvert${
+                    openCount > 1 ? "s" : ""
+                  }`
+                : "Aucun dossier ouvert"
+            }
+            accent={colors.status.warning}
+          />
+        </View>
 
+        <Text style={styles.sectionTitle}>Types de harcèlement</Text>
         <StatisticsSection
           title="Répartition par type"
           data={typesStats}
@@ -130,15 +193,163 @@ export default function StatisticsScreen() {
         />
 
         <Text style={styles.sectionTitle}>Niveaux d&apos;urgence</Text>
-
         <StatisticsSection
           title="Répartition par urgence"
           data={urgencesStats}
           color={colors.status.error}
           getPercentage={getPercentage}
         />
+
+        <Text style={styles.sectionTitle}>Lieux des faits</Text>
+        <StatisticsSection
+          title="Répartition par lieu"
+          data={lieuxStats}
+          color={colors.accent}
+          getPercentage={getPercentage}
+        />
+
+        <Text style={styles.sectionTitle}>Fréquence</Text>
+        <StatisticsSection
+          title="Répartition par fréquence"
+          data={frequencesStats}
+          color={colors.status.warning}
+          getPercentage={getPercentage}
+        />
+
+        <Text style={styles.sectionTitle}>Victimes</Text>
+        <StatisticsSection
+          title="Nombre de victimes déclarées"
+          data={victimesStats}
+          color={colors.secondary}
+          getPercentage={getPercentage}
+        />
+
+        <Text style={styles.sectionTitle}>Anonymat & pièces jointes</Text>
+        <View style={styles.metricsGrid}>
+          <MetricTile
+            label="Anonymes"
+            value={String(anonymatStats[0]?.[1] ?? 0)}
+            hint={`${getPercentage(anonymatStats[0]?.[1] ?? 0)} % du total`}
+            accent={colors.textMuted}
+          />
+          <MetricTile
+            label="Identifiés"
+            value={String(anonymatStats[1]?.[1] ?? 0)}
+            hint={`${getPercentage(anonymatStats[1]?.[1] ?? 0)} % du total`}
+            accent={colors.accent}
+          />
+          <MetricTile
+            label="Avec image"
+            value={String(withAttachmentCount)}
+            hint={`${getPercentage(withAttachmentCount)} % du total`}
+            accent={colors.primaryLight}
+          />
+          <MetricTile
+            label="Sans image"
+            value={String(Math.max(0, totalReports - withAttachmentCount))}
+            hint={`${getPercentage(
+              Math.max(0, totalReports - withAttachmentCount),
+            )} % du total`}
+            accent={colors.textMuted}
+          />
+        </View>
+
+        <Text style={styles.sectionTitle}>Modération communauté</Text>
+        <View style={styles.moderationCard}>
+          <View style={styles.moderationHeader}>
+            <Users size={18} color={colors.accent} strokeWidth={2.4} />
+            <Text style={styles.moderationTitle}>Sujets</Text>
+          </View>
+          <View style={styles.moderationRow}>
+            <ModerationChip
+              label="En attente"
+              value={moderation.stats.postsPending}
+              color={colors.status.warning}
+            />
+            <ModerationChip
+              label="Publiés"
+              value={moderation.stats.postsPublished}
+              color={colors.status.success}
+            />
+            <ModerationChip
+              label="Refusés"
+              value={moderation.stats.postsRefused}
+              color={colors.status.error}
+            />
+          </View>
+
+          <View style={[styles.moderationHeader, styles.moderationHeaderSpaced]}>
+            <MessageSquareText size={18} color={colors.accent} strokeWidth={2.4} />
+            <Text style={styles.moderationTitle}>Commentaires</Text>
+          </View>
+          <View style={styles.moderationRow}>
+            <ModerationChip
+              label="En attente"
+              value={moderation.stats.commentsPending}
+              color={colors.status.warning}
+            />
+            <ModerationChip
+              label="Publiés"
+              value={moderation.stats.commentsPublished}
+              color={colors.status.success}
+            />
+            <ModerationChip
+              label="Refusés"
+              value={moderation.stats.commentsRefused}
+              color={colors.status.error}
+            />
+          </View>
+        </View>
+
+        <View style={styles.footnote}>
+          <Clock3 size={14} color={colors.textMuted} />
+          <Text style={styles.footnoteText}>
+            L&apos;attente moyenne est calculée sur les dossiers encore ouverts
+            (Non traité / En cours), à partir de la date de création — aucune
+            date de résolution n&apos;est stockée en base.
+          </Text>
+        </View>
       </ScrollView>
     </ScreenShell>
+  );
+}
+
+function ModerationChip({
+  label,
+  value,
+  color,
+}: {
+  label: string;
+  value: number;
+  color: string;
+}) {
+  const { colors } = useAppTheme();
+  return (
+    <View
+      style={{
+        flex: 1,
+        borderRadius: 12,
+        paddingVertical: 10,
+        paddingHorizontal: 8,
+        alignItems: "center",
+        backgroundColor: color + "18",
+        borderWidth: 1,
+        borderColor: color + "44",
+      }}
+    >
+      <Text style={{ fontSize: 18, fontWeight: "900", color }}>{value}</Text>
+      <Text
+        style={{
+          marginTop: 2,
+          fontSize: 11,
+          fontWeight: "700",
+          color: colors.textMuted,
+          textAlign: "center",
+        }}
+      >
+        {label}
+      </Text>
+    </View>
   );
 }
 
@@ -200,6 +411,52 @@ function createStyles(colors: AppColorPalette, surface: string) {
       flexDirection: "row",
       gap: 10,
       marginBottom: 22,
+    },
+    metricsGrid: {
+      flexDirection: "row",
+      flexWrap: "wrap",
+      gap: 10,
+      marginBottom: 22,
+    },
+    moderationCard: {
+      backgroundColor: surface,
+      borderRadius: 20,
+      padding: 16,
+      borderWidth: 1,
+      borderColor: colors.border,
+      marginBottom: 18,
+    },
+    moderationHeader: {
+      flexDirection: "row",
+      alignItems: "center",
+      gap: 8,
+      marginBottom: 10,
+    },
+    moderationHeaderSpaced: {
+      marginTop: 16,
+    },
+    moderationTitle: {
+      fontSize: 15,
+      fontWeight: "800",
+      color: colors.text,
+    },
+    moderationRow: {
+      flexDirection: "row",
+      gap: 8,
+    },
+    footnote: {
+      flexDirection: "row",
+      alignItems: "flex-start",
+      gap: 8,
+      paddingHorizontal: 4,
+      marginTop: 4,
+    },
+    footnoteText: {
+      flex: 1,
+      fontSize: 12,
+      lineHeight: 17,
+      color: colors.textMuted,
+      fontWeight: "500",
     },
   });
 }

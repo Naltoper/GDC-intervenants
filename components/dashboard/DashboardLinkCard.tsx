@@ -41,6 +41,10 @@ export function DashboardLinkCard({
           backgroundColor: cardBg,
           shadowOpacity: isDark ? 0.22 : 0.08,
         },
+        nested && {
+          backgroundColor: isDark ? colors.borderSubtle : colors.borderSubtle,
+          borderColor: colors.border,
+        },
         nested && pressed && styles.rowPressed,
         !nested && pressed && styles.pressed,
       ]}
@@ -98,8 +102,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap: 14,
     paddingVertical: 12,
-    paddingHorizontal: 8,
+    paddingHorizontal: 10,
     borderRadius: 14,
+    borderWidth: 1,
   },
   rowPressed: {
     opacity: 0.82,

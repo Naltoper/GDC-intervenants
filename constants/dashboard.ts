@@ -32,14 +32,17 @@ export type DashboardStatusCardConfig = {
 
 const palette = Colors.light;
 
+/** Bleu un peu plus soutenu que primaryLight (#48A4F4) pour la carte « Tous ». */
+export const DASHBOARD_TOUS_BLUE = "#2B8AE6";
+
 export const DASHBOARD_STATUS_CARDS: DashboardStatusCardConfig[] = [
   {
     key: "Tous",
     label: "Tous",
-    accent: palette.primaryLight,
+    accent: DASHBOARD_TOUS_BLUE,
     background: palette.borderSubtle,
     // Même teinte que la barre verticale d'état
-    text: palette.primaryLight,
+    text: DASHBOARD_TOUS_BLUE,
   },
   {
     key: "Non traité",

@@ -55,6 +55,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: 4,
   },
   list: {
-    gap: 4,
+    gap: 8,
   },
 });

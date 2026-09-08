@@ -101,7 +101,7 @@ const styles = StyleSheet.create({
     ...StyleSheet.absoluteFillObject,
     alignItems: 'center',
     justifyContent: 'center',
-    paddingHorizontal: 118,
+    paddingHorizontal: 52,
     zIndex: 0,
   },
   title: {
@@ -111,13 +111,13 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   subtitle: {
-    fontSize: 12,
-    lineHeight: 16,
+    fontSize: 11,
+    lineHeight: 15,
     fontWeight: '600',
     textAlign: 'center',
     marginTop: 2,
   },
   subtitleSpacer: {
-    height: 18,
+    height: 17,
   },
 });

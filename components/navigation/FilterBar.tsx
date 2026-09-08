@@ -1,6 +1,7 @@
 import { Pressable, StyleSheet, Text, View } from "react-native";
 
 import { Colors } from "../../constants/theme";
+import { DASHBOARD_TOUS_BLUE } from "../../constants/dashboard";
 
 interface FilterBarProps {
   currentFilter: string;
@@ -21,10 +22,10 @@ const FILTER_ACTIVE_COLORS: Record<
   { background: string; border: string; text: string; shadow: string }
 > = {
   Tous: {
-    background: palette.primaryLight,
-    border: palette.primaryLight,
+    background: DASHBOARD_TOUS_BLUE,
+    border: DASHBOARD_TOUS_BLUE,
     text: "#ffffff",
-    shadow: palette.primaryLight,
+    shadow: DASHBOARD_TOUS_BLUE,
   },
   "Non traité": {
     background: palette.status.error,
@@ -58,7 +59,7 @@ export const FilterBar = ({
         const activeColors = FILTER_ACTIVE_COLORS[filter];
         const dotColor =
           filter === "Tous"
-            ? palette.primaryLight
+            ? DASHBOARD_TOUS_BLUE
             : STATUS_DOT_COLORS[filter] ?? palette.textMuted;
 
         return (

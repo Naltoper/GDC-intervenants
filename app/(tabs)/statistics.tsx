@@ -2,7 +2,6 @@ import { LinearGradient } from "expo-linear-gradient";
 import { useRouter } from "expo-router";
 import {
   BarChart3,
-  Clock3,
   MessageSquareText,
   ShieldAlert,
   ShieldCheck,
@@ -51,9 +50,8 @@ export default function StatisticsScreen() {
     anonymatStats,
     thisWeekCount,
     thisMonthCount,
+    thisYearCount,
     todayCount,
-    avgOpenAgeDays,
-    openCount,
     withAttachmentCount,
     getPercentage,
   } = useStatistics(reports);
@@ -64,13 +62,6 @@ export default function StatisticsScreen() {
       moderation.refresh(),
     ]);
   };
-
-  const avgWaitLabel =
-    avgOpenAgeDays === null
-      ? "—"
-      : avgOpenAgeDays < 1
-        ? "< 1 j"
-        : `${avgOpenAgeDays} j`;
 
   if (loading && !refreshing) {
     return (
@@ -171,16 +162,10 @@ export default function StatisticsScreen() {
             accent={colors.secondary}
           />
           <MetricTile
-            label="Attente moyenne"
-            value={avgWaitLabel}
-            hint={
-              openCount > 0
-                ? `${openCount} dossier${openCount > 1 ? "s" : ""} ouvert${
-                    openCount > 1 ? "s" : ""
-                  }`
-                : "Aucun dossier ouvert"
-            }
-            accent={colors.status.warning}
+            label="Cette année"
+            value={String(thisYearCount)}
+            hint={`depuis janvier ${new Date().getFullYear()}`}
+            accent={colors.status.success}
           />
         </View>
 
@@ -299,15 +284,6 @@ export default function StatisticsScreen() {
               color={colors.status.error}
             />
           </View>
-        </View>
-
-        <View style={styles.footnote}>
-          <Clock3 size={14} color={colors.textMuted} />
-          <Text style={styles.footnoteText}>
-            L&apos;attente moyenne est calculée sur les dossiers encore ouverts
-            (Non traité / En cours), à partir de la date de création — aucune
-            date de résolution n&apos;est stockée en base.
-          </Text>
         </View>
       </ScrollView>
     </ScreenShell>
@@ -443,20 +419,6 @@ function createStyles(colors: AppColorPalette, surface: string) {
     moderationRow: {
       flexDirection: "row",
       gap: 8,
-    },
-    footnote: {
-      flexDirection: "row",
-      alignItems: "flex-start",
-      gap: 8,
-      paddingHorizontal: 4,
-      marginTop: 4,
-    },
-    footnoteText: {
-      flex: 1,
-      fontSize: 12,
-      lineHeight: 17,
-      color: colors.textMuted,
-      fontWeight: "500",
     },
   });
 }

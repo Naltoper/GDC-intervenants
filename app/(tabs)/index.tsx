@@ -13,7 +13,6 @@ import {
 } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 
-import { InstallBanner } from "../../components/banners/InstallBanner";
 import { PageHeader } from "../../components/headers/PageHeader";
 import type { AppColorPalette } from "../../constants/theme";
 import { HeaderThemeToggle } from "../../components/navigation/HeaderThemeToggle";
@@ -290,12 +289,6 @@ export default function HomeScreen() {
           showsVerticalScrollIndicator={false}
           {...pullRefresh}
         >
-          <InstallBanner
-            title="Application Intervenants"
-            subtitle="Installez l'app pour recevoir les alertes en direct."
-            url="https://github.com/Naltoper/GDC-intervenants_start/releases/download/v1.0.0/GDC-Intervenants.apk"
-          />
-
           <View style={styles.header}>
             <View style={styles.logoContainer}>
               <Image

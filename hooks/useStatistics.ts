@@ -13,16 +13,13 @@ function startOfDay(date: Date) {
   return next;
 }
 
-function isOpenStatus(status: string) {
-  return status === "Non traité" || status === "En cours";
-}
-
 export function useStatistics(reports: Report[]) {
   return useMemo(() => {
     const totalReports = reports.length;
     const now = new Date();
     const weekAgo = new Date(now.getTime() - 7 * MS_DAY);
     const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
+    const yearStart = new Date(now.getFullYear(), 0, 1);
     const dayStart = startOfDay(now);
 
     const nonTraiteCount = reports.filter(
@@ -92,18 +89,9 @@ export function useStatistics(reports: Report[]) {
       (report) => new Date(report.created_at) >= dayStart,
     ).length;
 
-    const openReports = reports.filter((report) => isOpenStatus(report.status));
-    const avgOpenAgeDays =
-      openReports.length === 0
-        ? null
-        : Math.round(
-            (openReports.reduce((sum, report) => {
-              const age = now.getTime() - new Date(report.created_at).getTime();
-              return sum + age / MS_DAY;
-            }, 0) /
-              openReports.length) *
-              10,
-          ) / 10;
+    const thisYearCount = reports.filter(
+      (report) => new Date(report.created_at) >= yearStart,
+    ).length;
 
     const withAttachmentCount = reports.filter(
       (report) => typeof report.image_url === "string" && report.image_url.length > 0,
@@ -127,9 +115,8 @@ export function useStatistics(reports: Report[]) {
       anonymatStats,
       thisWeekCount,
       thisMonthCount,
+      thisYearCount,
       todayCount,
-      avgOpenAgeDays,
-      openCount: openReports.length,
       withAttachmentCount,
       getPercentage,
     };

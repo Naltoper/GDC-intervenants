@@ -1,5 +1,5 @@
 import { useRouter } from "expo-router";
-import { ChevronRight, Lock, Moon, Shield, Sun } from "lucide-react-native";
+import { ChevronRight, Lock, Shield } from "lucide-react-native";
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import {
   Animated,
@@ -16,6 +16,7 @@ import { LinearGradient } from "expo-linear-gradient";
 import { InstallBanner } from "../../components/banners/InstallBanner";
 import { PageHeader } from "../../components/headers/PageHeader";
 import type { AppColorPalette } from "../../constants/theme";
+import { HeaderThemeToggle } from "../../components/navigation/HeaderThemeToggle";
 import { useAppTheme } from "../../contexts/ThemeContext";
 import { usePullToRefresh } from "../../hooks/usePullToRefresh";
 
@@ -225,19 +226,12 @@ function createStyles(colors: AppColorPalette, surface: string) {
       fontWeight: "600",
       textAlign: "center",
     },
-    themeToggle: {
-      width: 40,
-      height: 40,
-      alignItems: "center",
-      justifyContent: "center",
-      borderRadius: 12,
-    },
   });
 }
 
 export default function HomeScreen() {
   const router = useRouter();
-  const { colors, surface, isDark, setScheme } = useAppTheme();
+  const { colors, surface, isDark } = useAppTheme();
   const styles = useMemo(() => createStyles(colors, surface), [colors, surface]);
   const [refreshing, setRefreshing] = useState(false);
   const nightOpacity = useRef(new Animated.Value(isDark ? 1 : 0)).current;
@@ -288,21 +282,7 @@ export default function HomeScreen() {
         <PageHeader
           title="Accueil"
           subtitle="Les Gardiens des Calanques"
-          right={
-            <TouchableOpacity
-              style={styles.themeToggle}
-              onPress={() => setScheme(isDark ? "light" : "dark")}
-              activeOpacity={0.75}
-              accessibilityRole="button"
-              accessibilityLabel={isDark ? "Mode clair" : "Mode sombre"}
-            >
-              {isDark ? (
-                <Sun size={20} color={colors.accent} strokeWidth={2.4} />
-              ) : (
-                <Moon size={20} color={colors.accent} strokeWidth={2.4} />
-              )}
-            </TouchableOpacity>
-          }
+          left={<HeaderThemeToggle />}
         />
 
         <ScrollView

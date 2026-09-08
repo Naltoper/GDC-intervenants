@@ -1,5 +1,5 @@
 import { useFocusEffect } from "@react-navigation/native";
-import { MessageSquareText, Users } from "lucide-react-native";
+import { BarChart3, MessageSquareText, Users } from "lucide-react-native";
 import { useRouter } from "expo-router";
 import { useCallback } from "react";
 import {
@@ -9,11 +9,13 @@ import {
   StyleSheet,
 } from "react-native";
 
+import { DashboardActionsCard } from "../../components/dashboard/DashboardActionsCard";
 import { DashboardLinkCard } from "../../components/dashboard/DashboardLinkCard";
 import { DashboardStatusGrid } from "../../components/dashboard/DashboardStatusGrid";
 import { PageHeader } from "../../components/headers/PageHeader";
 import { ScreenShell } from "../../components/layout/ScreenShell";
-import { HeaderOverflowMenu } from "../../components/navigation/HeaderOverflowMenu";
+import { HeaderLogoutButton } from "../../components/navigation/HeaderLogoutButton";
+import { HeaderThemeToggle } from "../../components/navigation/HeaderThemeToggle";
 import { useAppTheme } from "../../contexts/ThemeContext";
 import { useModerationPendingCount } from "../../hooks/community/useModerationPendingCount";
 import { useDashboard } from "../../hooks/useDashboard";
@@ -42,7 +44,8 @@ export default function DashboardScreen() {
       <PageHeader
         title="Espace Intervenants"
         subtitle="Gestion des signalements"
-        right={<HeaderOverflowMenu />}
+        left={<HeaderThemeToggle />}
+        right={<HeaderLogoutButton />}
       />
 
       {dashboard.loading && !dashboard.refreshing ? (
@@ -70,32 +73,47 @@ export default function DashboardScreen() {
             cards={dashboard.statusCards}
             onSelect={openFilter}
           />
-          <DashboardLinkCard
-            title="Historique des chats"
-            subtitle="Conversations avec les élèves"
-            icon={
-              <MessageSquareText
-                size={22}
-                color={colors.accent}
-                strokeWidth={2.4}
-              />
-            }
-            onPress={() => router.push("/(tabs)/chat-history")}
-          />
-          <DashboardLinkCard
-            title="Modération de la Communauté"
-            subtitle={
-              moderationPending.pendingCount > 0
-                ? `${moderationPending.pendingCount} élément${
-                    moderationPending.pendingCount > 1 ? "s" : ""
-                  } en attente`
-                : "Surveiller et modérer le forum élèves"
-            }
-            icon={<Users size={22} color={colors.accent} strokeWidth={2.4} />}
-            onPress={() => router.push("/(tabs)/moderation")}
-            accessibilityLabel="Modération de la Communauté"
-            badgeCount={moderationPending.pendingCount}
-          />
+
+          <DashboardActionsCard>
+            <DashboardLinkCard
+              nested
+              title="Historique des chats"
+              subtitle="Conversations avec les élèves"
+              icon={
+                <MessageSquareText
+                  size={22}
+                  color={colors.accent}
+                  strokeWidth={2.4}
+                />
+              }
+              onPress={() => router.push("/(tabs)/chat-history")}
+            />
+            <DashboardLinkCard
+              nested
+              title="Modération de la Communauté"
+              subtitle={
+                moderationPending.pendingCount > 0
+                  ? `${moderationPending.pendingCount} élément${
+                      moderationPending.pendingCount > 1 ? "s" : ""
+                    } en attente`
+                  : "Surveiller et modérer le forum élèves"
+              }
+              icon={<Users size={22} color={colors.accent} strokeWidth={2.4} />}
+              onPress={() => router.push("/(tabs)/moderation")}
+              accessibilityLabel="Modération de la Communauté"
+              badgeCount={moderationPending.pendingCount}
+            />
+            <DashboardLinkCard
+              nested
+              title="Statistiques"
+              subtitle="Vue d’ensemble des signalements"
+              icon={
+                <BarChart3 size={22} color={colors.accent} strokeWidth={2.4} />
+              }
+              onPress={() => router.push("/(tabs)/statistics")}
+              accessibilityLabel="Statistiques"
+            />
+          </DashboardActionsCard>
         </ScrollView>
       )}
     </ScreenShell>

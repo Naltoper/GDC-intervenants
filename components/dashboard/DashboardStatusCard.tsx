@@ -16,7 +16,8 @@ export const DashboardStatusCard = ({
   card,
   onPress,
 }: DashboardStatusCardProps) => {
-  const { colors, surface } = useAppTheme();
+  const { colors, isDark, surface } = useAppTheme();
+  const cardBg = isDark ? surface : "#FFFFFF";
 
   return (
     <Pressable
@@ -24,8 +25,8 @@ export const DashboardStatusCard = ({
       style={({ pressed }) => [
         styles.card,
         {
-          backgroundColor: surface,
-          borderColor: colors.border,
+          backgroundColor: cardBg,
+          shadowOpacity: isDark ? 0.22 : 0.08,
         },
         pressed && styles.cardPressed,
       ]}
@@ -51,14 +52,13 @@ const styles = StyleSheet.create({
     width: "48%",
     minHeight: 140,
     borderRadius: 20,
-    borderWidth: 1,
     overflow: "hidden",
     flexDirection: "row",
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.05,
-    shadowRadius: 10,
-    elevation: 3,
+    shadowOpacity: 0.08,
+    shadowRadius: 12,
+    elevation: 4,
   },
   cardPressed: {
     opacity: 0.88,

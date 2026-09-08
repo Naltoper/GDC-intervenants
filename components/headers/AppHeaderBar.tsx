@@ -40,7 +40,7 @@ export function AppHeaderBar({
       >
         <View style={styles.row}>
           <View style={[styles.side, styles.sideLeft]}>{left}</View>
-          <View style={styles.titleBlock}>
+          <View style={styles.titleBlock} pointerEvents="none">
             <Text style={[styles.title, { color: headerFg }]} numberOfLines={1}>
               {title}
             </Text>
@@ -79,12 +79,13 @@ const styles = StyleSheet.create({
   row: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'center',
+    justifyContent: 'space-between',
     minHeight: HEADER_ROW_MIN_HEIGHT,
+    position: 'relative',
   },
   side: {
-    width: 44,
-    height: 44,
+    minWidth: 44,
+    minHeight: 44,
     alignItems: 'center',
     justifyContent: 'center',
     overflow: 'visible',
@@ -97,12 +98,10 @@ const styles = StyleSheet.create({
     alignItems: 'flex-end',
   },
   titleBlock: {
-    flex: 1,
+    ...StyleSheet.absoluteFillObject,
     alignItems: 'center',
     justifyContent: 'center',
-    paddingHorizontal: 6,
-    minHeight: HEADER_ROW_MIN_HEIGHT,
-    overflow: 'hidden',
+    paddingHorizontal: 118,
     zIndex: 0,
   },
   title: {

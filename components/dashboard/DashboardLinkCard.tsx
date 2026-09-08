@@ -1,7 +1,7 @@
-import type { ReactNode } from "react";
-import { Pressable, StyleSheet, Text, View } from "react-native";
+import type { ReactNode } from 'react';
+import { Pressable, StyleSheet, Text, View } from 'react-native';
 
-import { useAppTheme } from "../../contexts/ThemeContext";
+import { useAppTheme } from '../../contexts/ThemeContext';
 
 type DashboardLinkCardProps = {
   title: string;
@@ -11,9 +11,14 @@ type DashboardLinkCardProps = {
   accessibilityLabel?: string;
   /** Badge rouge (ex. éléments en attente de modération). */
   badgeCount?: number;
+  /**
+   * Ligne dans une carte conteneur (pas d’ombre / fond propre).
+   * Défaut : false (carte autonome).
+   */
+  nested?: boolean;
 };
 
-/** Carte d’action dashboard (même langage visuel que les tuiles Élève). */
+/** Ligne / carte d’action dashboard. */
 export function DashboardLinkCard({
   title,
   subtitle,
@@ -21,20 +26,23 @@ export function DashboardLinkCard({
   onPress,
   accessibilityLabel,
   badgeCount = 0,
+  nested = false,
 }: DashboardLinkCardProps) {
-  const { colors, surface } = useAppTheme();
+  const { colors, isDark, surface } = useAppTheme();
   const showBadge = badgeCount > 0;
+  const cardBg = isDark ? surface : '#FFFFFF';
 
   return (
     <Pressable
       onPress={onPress}
       style={({ pressed }) => [
-        styles.button,
-        {
-          backgroundColor: surface,
-          borderColor: colors.border,
+        nested ? styles.row : styles.button,
+        !nested && {
+          backgroundColor: cardBg,
+          shadowOpacity: isDark ? 0.22 : 0.08,
         },
-        pressed && styles.pressed,
+        nested && pressed && styles.rowPressed,
+        !nested && pressed && styles.pressed,
       ]}
       accessibilityRole="button"
       accessibilityLabel={
@@ -47,8 +55,7 @@ export function DashboardLinkCard({
         style={[
           styles.iconWrap,
           {
-            backgroundColor: colors.borderSubtle,
-            borderColor: colors.border,
+            backgroundColor: isDark ? colors.borderSubtle : colors.background,
           },
         ]}
       >
@@ -56,7 +63,7 @@ export function DashboardLinkCard({
         {showBadge ? (
           <View style={[styles.badge, { backgroundColor: colors.status.error }]}>
             <Text style={styles.badgeText}>
-              {badgeCount > 99 ? "99+" : String(badgeCount)}
+              {badgeCount > 99 ? '99+' : String(badgeCount)}
             </Text>
           </View>
         ) : null}
@@ -74,18 +81,28 @@ export function DashboardLinkCard({
 const styles = StyleSheet.create({
   button: {
     marginTop: 14,
-    flexDirection: "row",
-    alignItems: "center",
+    flexDirection: 'row',
+    alignItems: 'center',
     gap: 14,
     paddingVertical: 16,
     paddingHorizontal: 16,
     borderRadius: 20,
-    borderWidth: 1,
-    shadowColor: "#000",
+    shadowColor: '#000',
     shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.05,
-    shadowRadius: 10,
-    elevation: 3,
+    shadowOpacity: 0.08,
+    shadowRadius: 12,
+    elevation: 4,
+  },
+  row: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 14,
+    paddingVertical: 12,
+    paddingHorizontal: 8,
+    borderRadius: 14,
+  },
+  rowPressed: {
+    opacity: 0.82,
   },
   pressed: {
     opacity: 0.9,
@@ -95,39 +112,38 @@ const styles = StyleSheet.create({
     width: 48,
     height: 48,
     borderRadius: 14,
-    alignItems: "center",
-    justifyContent: "center",
-    borderWidth: 1,
-    position: "relative",
+    alignItems: 'center',
+    justifyContent: 'center',
+    position: 'relative',
   },
   badge: {
-    position: "absolute",
+    position: 'absolute',
     top: -6,
     right: -6,
     minWidth: 20,
     height: 20,
     borderRadius: 10,
     paddingHorizontal: 5,
-    alignItems: "center",
-    justifyContent: "center",
+    alignItems: 'center',
+    justifyContent: 'center',
     borderWidth: 2,
-    borderColor: "#ffffff",
+    borderColor: '#ffffff',
   },
   badgeText: {
-    color: "#ffffff",
+    color: '#ffffff',
     fontSize: 10,
-    fontWeight: "800",
+    fontWeight: '800',
   },
   textWrap: {
     flex: 1,
   },
   title: {
     fontSize: 16,
-    fontWeight: "800",
+    fontWeight: '800',
     marginBottom: 2,
   },
   subtitle: {
     fontSize: 13,
-    fontWeight: "500",
+    fontWeight: '500',
   },
 });
